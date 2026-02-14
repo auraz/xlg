@@ -25,7 +25,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 
 **Sources:** `fetch`, `read`
 **Transforms:** `parse`, `get`, `filter`, `sort`, `take`, `summarize`
-**Sinks:** `print`, `write`, `store`, `play`
+**Sinks:** `print`, `write`, `store`, `play`, `open`
 
 ## Examples
 
@@ -44,6 +44,9 @@ xlg 'read "article.txt" | summarize | print'
 
 # Play music (macOS)
 xlg 'play "Beatles"'
+
+# Open URLs in browser
+xlg 'fetch "api/links" | parse json | get "items" | open'
 ```
 
 ## Summarize Setup

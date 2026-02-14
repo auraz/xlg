@@ -4,7 +4,7 @@ from typing import Any
 from xlg.parser import Pipeline
 from xlg.commands.sources import cmd_read, cmd_fetch
 from xlg.commands.transforms import cmd_parse, cmd_get, cmd_filter, cmd_take, cmd_sort, cmd_summarize
-from xlg.commands.sinks import cmd_print, cmd_write, cmd_store, cmd_play
+from xlg.commands.sinks import cmd_open, cmd_play, cmd_print, cmd_store, cmd_write
 
 
 def evaluate(ast: Pipeline, source: Generator | None = None) -> Any:
@@ -36,6 +36,8 @@ def evaluate(ast: Pipeline, source: Generator | None = None) -> Any:
             return cmd_store(stream, args[0])
         elif name == "play":
             return cmd_play(args[0])
+        elif name == "open":
+            return cmd_open(stream)
         else:
             raise ValueError(f"Unknown command: {name}")
     return list(stream) if stream else []

@@ -48,3 +48,13 @@ def cmd_play(query: str) -> str:
     if result.returncode != 0:
         raise RuntimeError(f"Apple Music error: {result.stderr}")
     return f"Playing: {query}"
+
+
+def cmd_open(upstream: Generator[Any, None, None]) -> list[str]:
+    """Open URLs in browser."""
+    urls = []
+    for item in upstream:
+        url = item["url"] if isinstance(item, dict) else str(item)
+        subprocess.run(["open", url])
+        urls.append(url)
+    return urls

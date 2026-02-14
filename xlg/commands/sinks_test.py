@@ -2,7 +2,7 @@
 import sqlite3
 import tempfile
 from pathlib import Path
-from xlg.commands.sinks import cmd_print, cmd_store, cmd_write
+from xlg.commands.sinks import cmd_open, cmd_print, cmd_store, cmd_write
 
 
 def test_print_collects_output(capsys):
@@ -40,3 +40,12 @@ def test_store_sqlite():
     assert len(rows) == 2
     conn.close()
     Path(path).unlink()
+
+
+def test_cmd_open(mocker):
+    """Test open command opens URLs in browser."""
+    mock_run = mocker.patch("subprocess.run")
+    items = iter([{"title": "Art", "url": "https://example.com/art"}, {"title": "Music", "url": "https://example.com/music"}])
+    result = cmd_open(items)
+    assert result == ["https://example.com/art", "https://example.com/music"]
+    assert mock_run.call_count == 2
