@@ -23,7 +23,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 
 ## Commands
 
-**Sources:** `fetch`, `read`, `reddit`
+**Sources:** `fetch`, `read`, `reddit`, `hn`
 **Transforms:** `parse`, `get`, `filter`, `sort`, `take`, `summarize`
 **Sinks:** `print`, `write`, `store`, `play`, `open`
 
@@ -50,6 +50,9 @@ xlg 'fetch "api/links" | parse json | get "items" | open'
 
 # Browse Reddit posts
 xlg 'reddit "r/Art" "monet" | take 5 | open'
+
+# Browse Hacker News
+xlg 'hn "python" | take 5 | open'
 ```
 
 ## Summarize Setup
