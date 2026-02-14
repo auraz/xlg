@@ -22,3 +22,18 @@ def cmd_hn(query: str) -> Generator[dict, None, None]:
     for hit in response.json()["hits"]:
         item_url = hit.get("url") or f"https://news.ycombinator.com/item?id={hit['objectID']}"
         yield {"title": hit["title"], "url": item_url, "source": "hn"}
+
+
+def cmd_museum(museum: str, query: str) -> Generator[dict, None, None]:
+    """Fetch artworks from museum API."""
+    if museum != "met":
+        raise ValueError(f"museum: unsupported museum '{museum}', use 'met'")
+    search_url = f"https://collectionapi.metmuseum.org/public/collection/v1/search?q={query}&hasImages=true"
+    response = httpx.get(search_url)
+    response.raise_for_status()
+    object_ids = response.json().get("objectIDs") or []
+    for oid in object_ids[:10]:
+        obj_response = httpx.get(f"https://collectionapi.metmuseum.org/public/collection/v1/objects/{oid}")
+        obj = obj_response.json()
+        if obj.get("primaryImage"):
+            yield {"title": obj["title"], "url": f"https://www.metmuseum.org/art/collection/search/{oid}", "source": "museum"}

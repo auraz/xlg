@@ -23,7 +23,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 
 ## Commands
 
-**Sources:** `fetch`, `read`, `reddit`, `hn`
+**Sources:** `fetch`, `read`, `reddit`, `hn`, `museum`
 **Transforms:** `parse`, `get`, `filter`, `sort`, `take`, `summarize`
 **Sinks:** `print`, `write`, `store`, `play`, `open`
 
@@ -53,6 +53,9 @@ xlg 'reddit "r/Art" "monet" | take 5 | open'
 
 # Browse Hacker News
 xlg 'hn "python" | take 5 | open'
+
+# Browse Met Museum artworks
+xlg 'museum "met" "monet" | take 5 | open'
 ```
 
 ## Summarize Setup
