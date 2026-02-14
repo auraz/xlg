@@ -40,3 +40,10 @@ def cmd_take(upstream: Generator[Any, None, None], n: int) -> Generator[Any, Non
             break
         yield item
         count += 1
+
+
+def cmd_sort(upstream: Generator[Any, None, None], field: str) -> Generator[Any, None, None]:
+    """Sort items by field."""
+    items = list(upstream)
+    items.sort(key=lambda x: x.get(field, ""))
+    yield from items
