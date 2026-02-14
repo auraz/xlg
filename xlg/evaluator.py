@@ -2,12 +2,13 @@
 from collections.abc import Callable, Generator
 from typing import Any
 from xlg.parser import Pipeline, Command
-from xlg.commands.sources import cmd_read
+from xlg.commands.sources import cmd_read, cmd_fetch
 from xlg.commands.transforms import cmd_parse
 from xlg.commands.sinks import cmd_print
 
 
 COMMANDS = {
+    "fetch": cmd_fetch,
     "read": cmd_read,
     "parse": cmd_parse,
     "print": cmd_print,
@@ -22,6 +23,8 @@ def evaluate(ast: Pipeline, source: Callable[[], Generator] | None = None) -> An
         if handler is None:
             raise ValueError(f"Unknown command: {cmd.name}")
         if cmd.name == "read":
+            stream = handler(cmd.args[0])
+        elif cmd.name == "fetch":
             stream = handler(cmd.args[0])
         elif cmd.name == "parse":
             stream = handler(stream, cmd.args[0])
