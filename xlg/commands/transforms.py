@@ -23,3 +23,10 @@ def cmd_get(upstream: Generator[Any, None, None], path: str) -> Generator[Any, N
         for key in path.split('.'):
             value = value[key]
         yield value
+
+
+def cmd_filter(upstream: Generator[Any, None, None], field: str, value: str) -> Generator[Any, None, None]:
+    """Filter items where field equals value."""
+    for item in upstream:
+        if str(item.get(field)) == str(value):
+            yield item
