@@ -43,15 +43,13 @@ xlg 'fetch "api/data" | parse json | get "items" | take 10 | print'
 xlg 'read "article.txt" | summarize | print'
 ```
 
-## Apple Intelligence Setup
+## Summarize Setup
 
-The `summarize` command uses Apple Intelligence via macOS Shortcuts. Create a shortcut named "XLG Summarize":
+The `summarize` command uses OpenAI API. Set your API key:
 
-1. Open Shortcuts app
-2. Create new shortcut named "XLG Summarize"
-3. Add: Receive input → Text
-4. Add: Summarize (Apple Intelligence action)
-5. Add: Stop and Output → Summary
+```bash
+export OPENAI_API_KEY="your-key"
+```
 
 ## Development
 
