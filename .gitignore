@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+
+# Tools
+.ruff_cache/
+.pytest_cache/
+
+# Local
+.claude/
