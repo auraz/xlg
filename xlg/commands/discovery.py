@@ -2,6 +2,7 @@
 
 import httpx
 from collections.abc import Generator
+from urllib.parse import quote
 
 
 def cmd_reddit(subreddit: str, query: str = "") -> Generator[dict, None, None]:
@@ -53,9 +54,9 @@ def cmd_github(query: str) -> Generator[dict, None, None]:
 
 def cmd_wiki(query: str = "") -> Generator[dict, None, None]:
     """Fetch articles from Wikipedia."""
-    headers = {"User-Agent": "xlg/0.1"}
+    headers = {"User-Agent": "xlg/0.1 (https://github.com/auraz/xlg)"}
     if query:
-        url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={query}&format=json&srlimit=10"
+        url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={quote(query)}&format=json&srlimit=10"
         response = httpx.get(url, headers=headers)
         response.raise_for_status()
         for item in response.json()["query"]["search"]:
