@@ -29,12 +29,13 @@ def cmd_museum(museum: str, query: str) -> Generator[dict, None, None]:
     """Fetch artworks from museum API."""
     if museum != "met":
         raise ValueError(f"museum: unsupported museum '{museum}', use 'met'")
+    headers = {"User-Agent": "xlg/0.1"}
     search_url = f"https://collectionapi.metmuseum.org/public/collection/v1/search?q={query}&hasImages=true"
-    response = httpx.get(search_url)
+    response = httpx.get(search_url, headers=headers)
     response.raise_for_status()
     object_ids = response.json().get("objectIDs") or []
     for oid in object_ids[:10]:
-        obj_response = httpx.get(f"https://collectionapi.metmuseum.org/public/collection/v1/objects/{oid}")
+        obj_response = httpx.get(f"https://collectionapi.metmuseum.org/public/collection/v1/objects/{oid}", headers=headers)
         obj_response.raise_for_status()
         obj = obj_response.json()
         if obj.get("primaryImage"):
