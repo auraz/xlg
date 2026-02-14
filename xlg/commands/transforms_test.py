@@ -51,3 +51,17 @@ def test_sort_by_field():
     assert result[0]["name"] == "alice"
     assert result[1]["name"] == "bob"
     assert result[2]["name"] == "charlie"
+
+
+def test_cmd_parse_rss():
+    """Test parse rss yields items with title, url, source."""
+    rss_content = '''<?xml version="1.0"?>
+    <rss version="2.0">
+        <channel>
+            <item><title>Post 1</title><link>https://example.com/1</link></item>
+            <item><title>Post 2</title><link>https://example.com/2</link></item>
+        </channel>
+    </rss>'''
+    result = list(cmd_parse(iter([rss_content]), "rss"))
+    assert len(result) == 2
+    assert result[0] == {"title": "Post 1", "url": "https://example.com/1", "source": "rss"}

@@ -5,6 +5,8 @@ import os
 from collections.abc import Generator
 from io import StringIO
 from typing import Any
+
+import feedparser
 from openai import OpenAI
 
 
@@ -20,6 +22,10 @@ def cmd_parse(upstream: Generator[Any, None, None], format: str) -> Generator[An
         elif format == "csv":
             reader = csv.DictReader(StringIO(item))
             yield from reader
+        elif format == "rss":
+            feed = feedparser.parse(item)
+            for entry in feed.entries:
+                yield {"title": entry.get("title", ""), "url": entry.get("link", ""), "source": "rss"}
 
 
 def cmd_get(upstream: Generator[Any, None, None], path: str) -> Generator[Any, None, None]:
