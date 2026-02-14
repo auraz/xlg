@@ -11,11 +11,14 @@ xlg = "xlg.main:main"
 [tool.uv]
 package = true
 
+[tool.setuptools.packages.find]
+include = ["xlg*"]
+
 [tool.ruff]
 line-length = 170
 
 [tool.pytest.ini_options]
-testpaths = ["xlg"]
+testpaths = ["xlg", "tests"]
 python_files = ["*_test.py"]
 
 [dependency-groups]

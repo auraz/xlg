@@ -17,10 +17,11 @@ def test_parse_csv():
 
 
 def test_get_nested():
+    """Test get with nested path, flattening list results."""
     def source():
         yield {"data": {"items": [1, 2, 3]}}
     result = list(cmd_get(source(), "data.items"))
-    assert result == [[1, 2, 3]]
+    assert result == [1, 2, 3]
 
 
 def test_filter_by_field():

@@ -17,12 +17,15 @@ def cmd_parse(upstream: Generator[Any, None, None], format: str) -> Generator[An
 
 
 def cmd_get(upstream: Generator[Any, None, None], path: str) -> Generator[Any, None, None]:
-    """Extract nested field by dot-path."""
+    """Extract nested field by dot-path, flattening lists."""
     for item in upstream:
         value = item
         for key in path.split('.'):
             value = value[key]
-        yield value
+        if isinstance(value, list):
+            yield from value
+        else:
+            yield value
 
 
 def cmd_filter(upstream: Generator[Any, None, None], field: str, value: str) -> Generator[Any, None, None]:

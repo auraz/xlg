@@ -43,7 +43,7 @@ xlg 'fetch "api/data" | parse json | get "items" | take 10 | print'
 ## Development
 
 ```bash
-just test   # run tests
+just test   # run tests (unit + integration)
 just lint   # check code
 just fmt    # format code
 ```
