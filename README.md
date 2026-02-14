@@ -18,3 +18,4 @@ In development. See [design doc](docs/plans/2026-02-14-xlg-design.md).
 - **Commands**: Built-in commands (read, fetch sources; print, write, store sinks; parse, get, filter, take, sort transforms) - in progress
 - **Evaluator**: Executes pipeline AST by wiring commands together - complete
 - **CLI/REPL**: Command-line interface and interactive REPL - complete
+- **Demo Site**: Static demo page in `site/index.html`
