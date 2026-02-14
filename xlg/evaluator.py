@@ -3,7 +3,7 @@ from collections.abc import Callable, Generator
 from typing import Any
 from xlg.parser import Pipeline, Command
 from xlg.commands.sources import cmd_read, cmd_fetch
-from xlg.commands.transforms import cmd_parse
+from xlg.commands.transforms import cmd_parse, cmd_get
 from xlg.commands.sinks import cmd_print, cmd_store, cmd_write
 
 
@@ -11,6 +11,7 @@ COMMANDS = {
     "fetch": cmd_fetch,
     "read": cmd_read,
     "parse": cmd_parse,
+    "get": cmd_get,
     "print": cmd_print,
     "write": cmd_write,
     "store": cmd_store,
@@ -29,6 +30,8 @@ def evaluate(ast: Pipeline, source: Callable[[], Generator] | None = None) -> An
         elif cmd.name == "fetch":
             stream = handler(cmd.args[0])
         elif cmd.name == "parse":
+            stream = handler(stream, cmd.args[0])
+        elif cmd.name == "get":
             stream = handler(stream, cmd.args[0])
         elif cmd.name == "print":
             return handler(stream)

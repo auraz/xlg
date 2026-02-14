@@ -14,3 +14,12 @@ def cmd_parse(upstream: Generator[Any, None, None], format: str) -> Generator[An
         elif format == "csv":
             reader = csv.DictReader(StringIO(item))
             yield from reader
+
+
+def cmd_get(upstream: Generator[Any, None, None], path: str) -> Generator[Any, None, None]:
+    """Extract nested field by dot-path."""
+    for item in upstream:
+        value = item
+        for key in path.split('.'):
+            value = value[key]
+        yield value
