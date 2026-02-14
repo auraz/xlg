@@ -24,7 +24,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 ## Commands
 
 **Sources:** `fetch`, `read`
-**Transforms:** `parse`, `get`, `filter`, `sort`, `take`
+**Transforms:** `parse`, `get`, `filter`, `sort`, `take`, `summarize`
 **Sinks:** `print`, `write`, `store`
 
 ## Examples
@@ -38,7 +38,20 @@ xlg 'read "data.csv" | parse csv | filter "region" "west" | print'
 
 # JSON extraction
 xlg 'fetch "api/data" | parse json | get "items" | take 10 | print'
+
+# Summarize with Apple Intelligence (macOS only)
+xlg 'read "article.txt" | summarize | print'
 ```
+
+## Apple Intelligence Setup
+
+The `summarize` command uses Apple Intelligence via macOS Shortcuts. Create a shortcut named "XLG Summarize":
+
+1. Open Shortcuts app
+2. Create new shortcut named "XLG Summarize"
+3. Add: Receive input → Text
+4. Add: Summarize (Apple Intelligence action)
+5. Add: Stop and Output → Summary
 
 ## Development
 

@@ -3,7 +3,7 @@ from collections.abc import Generator
 from typing import Any
 from xlg.parser import Pipeline
 from xlg.commands.sources import cmd_read, cmd_fetch
-from xlg.commands.transforms import cmd_parse, cmd_get, cmd_filter, cmd_take, cmd_sort
+from xlg.commands.transforms import cmd_parse, cmd_get, cmd_filter, cmd_take, cmd_sort, cmd_summarize
 from xlg.commands.sinks import cmd_print, cmd_write, cmd_store
 
 
@@ -26,6 +26,8 @@ def evaluate(ast: Pipeline, source: Generator | None = None) -> Any:
             stream = cmd_take(stream, int(args[0]))
         elif name == "sort":
             stream = cmd_sort(stream, args[0])
+        elif name == "summarize":
+            stream = cmd_summarize(stream)
         elif name == "print":
             return cmd_print(stream)
         elif name == "write":

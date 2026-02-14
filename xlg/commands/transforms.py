@@ -1,6 +1,7 @@
 """Transform commands for pipelines."""
 import csv
 import json
+import subprocess
 from collections.abc import Generator
 from io import StringIO
 from typing import Any
@@ -54,3 +55,13 @@ def cmd_sort(upstream: Generator[Any, None, None], field: str) -> Generator[Any,
     items = list(upstream)
     items.sort(key=lambda x: x.get(field, ""))
     yield from items
+
+
+def cmd_summarize(upstream: Generator[Any, None, None]) -> Generator[str, None, None]:
+    """Summarize text using Apple Intelligence via macOS Shortcuts."""
+    for item in upstream:
+        text = str(item) if not isinstance(item, str) else item
+        result = subprocess.run(["shortcuts", "run", "XLG Summarize", "-i", "-"], input=text, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise RuntimeError(f"Shortcut failed: {result.stderr}")
+        yield result.stdout.strip()
