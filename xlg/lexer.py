@@ -23,13 +23,25 @@ def tokenize(source: str) -> list[Token]:
     tokens = []
     i = 0
     while i < len(source):
-        if source[i] == '"':
+        c = source[i]
+        if c.isspace():
+            i += 1
+        elif c == '"':
             i += 1
             start = i
             while i < len(source) and source[i] != '"':
                 i += 1
             tokens.append(Token(TokenType.STRING, source[start:i]))
             i += 1
+        elif c == '|':
+            tokens.append(Token(TokenType.PIPE, "|"))
+            i += 1
+        elif c.isdigit():
+            start = i
+            while i < len(source) and (source[i].isdigit() or source[i] == '.'):
+                i += 1
+            value = source[start:i]
+            tokens.append(Token(TokenType.NUMBER, float(value) if '.' in value else int(value)))
         else:
             i += 1
     return tokens
