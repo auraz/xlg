@@ -57,13 +57,13 @@ def cmd_wiki(query: str = "") -> Generator[dict, None, None]:
     headers = {"User-Agent": "xlg/0.1 (https://github.com/auraz/xlg)"}
     if query:
         url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={quote(query)}&format=json&srlimit=10"
-        response = httpx.get(url, headers=headers)
+        response = httpx.get(url, headers=headers, follow_redirects=True)
         response.raise_for_status()
         for item in response.json()["query"]["search"]:
             yield {"title": item["title"], "url": f"https://en.wikipedia.org/wiki/{item['title'].replace(' ', '_')}", "source": "wikipedia"}
     else:
         for _ in range(5):
-            response = httpx.get("https://en.wikipedia.org/api/rest_v1/page/random/summary", headers=headers)
+            response = httpx.get("https://en.wikipedia.org/api/rest_v1/page/random/summary", headers=headers, follow_redirects=True)
             response.raise_for_status()
             data = response.json()
             yield {"title": data["title"], "url": data["content_urls"]["desktop"]["page"], "source": "wikipedia"}
