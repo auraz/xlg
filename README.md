@@ -2,20 +2,48 @@
 
 Express complex operations in single commands.
 
+## Install
+
+```bash
+uv tool install xlg
 ```
-fetch "api.example.com/users" | parse json | store "users.db"
+
+## Usage
+
+```bash
+xlg 'fetch "api/users" | parse json | print'
 ```
 
-## Status
+Or interactive REPL:
 
-In development. See [design doc](docs/plans/2026-02-14-xlg-design.md).
+```bash
+xlg
+xlg> read "data.csv" | parse csv | filter "active" "true" | print
+```
 
-## Components
+## Commands
 
-- **Lexer**: Tokenizes XLG source into tokens (STRING, NUMBER, PIPE, WORD) - complete
-- **Parser**: Builds AST (Pipeline of Commands) from tokens - complete
-- **Pipeline**: Chains generators together for lazy evaluation - complete
-- **Commands**: Built-in commands (read, fetch sources; print, write, store sinks; parse, get, filter, take, sort transforms) - in progress
-- **Evaluator**: Executes pipeline AST by wiring commands together - complete
-- **CLI/REPL**: Command-line interface and interactive REPL - complete
-- **Demo Site**: Static demo page in `site/index.html`
+**Sources:** `fetch`, `read`
+**Transforms:** `parse`, `get`, `filter`, `sort`, `take`
+**Sinks:** `print`, `write`, `store`
+
+## Examples
+
+```bash
+# API to database
+xlg 'fetch "api/users" | parse json | store "users.db"'
+
+# CSV filtering
+xlg 'read "data.csv" | parse csv | filter "region" "west" | print'
+
+# JSON extraction
+xlg 'fetch "api/data" | parse json | get "items" | take 10 | print'
+```
+
+## Development
+
+```bash
+just test   # run tests
+just lint   # check code
+just fmt    # format code
+```
