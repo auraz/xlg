@@ -10,7 +10,11 @@ def cmd_parse(upstream: Generator[Any, None, None], format: str) -> Generator[An
     """Parse input data according to format."""
     for item in upstream:
         if format == "json":
-            yield json.loads(item)
+            parsed = json.loads(item)
+            if isinstance(parsed, list):
+                yield from parsed
+            else:
+                yield parsed
         elif format == "csv":
             reader = csv.DictReader(StringIO(item))
             yield from reader
