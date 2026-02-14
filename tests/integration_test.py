@@ -33,3 +33,11 @@ def test_full_pipeline():
     assert result == 3
     Path(json_path).unlink()
     Path(db_path).unlink()
+
+
+def test_discovery_pipeline_structure():
+    """Test discovery pipeline yields correct structure."""
+    from xlg.commands.discovery import cmd_reddit, cmd_hn, cmd_museum
+    assert callable(cmd_reddit)
+    assert callable(cmd_hn)
+    assert callable(cmd_museum)
