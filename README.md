@@ -12,4 +12,4 @@ In development. See [design doc](docs/plans/2026-02-14-xlg-design.md).
 
 ## Components
 
-- **Lexer**: Tokenizes XLG source into tokens (STRING, NUMBER, PIPE, WORD)
+- **Lexer**: Tokenizes XLG source into tokens (STRING, NUMBER, PIPE, WORD) - complete

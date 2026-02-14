@@ -20,3 +20,19 @@ def test_tokenize_float():
 def test_tokenize_pipe():
     tokens = tokenize("|")
     assert tokens == [Token(TokenType.PIPE, "|")]
+
+
+def test_tokenize_word():
+    tokens = tokenize("fetch")
+    assert tokens == [Token(TokenType.WORD, "fetch")]
+
+
+def test_tokenize_pipeline():
+    tokens = tokenize('fetch "url" | parse json')
+    assert tokens == [
+        Token(TokenType.WORD, "fetch"),
+        Token(TokenType.STRING, "url"),
+        Token(TokenType.PIPE, "|"),
+        Token(TokenType.WORD, "parse"),
+        Token(TokenType.WORD, "json"),
+    ]

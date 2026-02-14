@@ -42,6 +42,11 @@ def tokenize(source: str) -> list[Token]:
                 i += 1
             value = source[start:i]
             tokens.append(Token(TokenType.NUMBER, float(value) if '.' in value else int(value)))
+        elif c.isalpha() or c == '_':
+            start = i
+            while i < len(source) and (source[i].isalnum() or source[i] == '_'):
+                i += 1
+            tokens.append(Token(TokenType.WORD, source[start:i]))
         else:
             i += 1
     return tokens
