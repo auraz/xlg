@@ -1,4 +1,5 @@
 """Transform commands for pipelines."""
+
 import csv
 import json
 import os
@@ -32,7 +33,7 @@ def cmd_get(upstream: Generator[Any, None, None], path: str) -> Generator[Any, N
     """Extract nested field by dot-path, flattening lists."""
     for item in upstream:
         value = item
-        for key in path.split('.'):
+        for key in path.split("."):
             value = value[key]
         if isinstance(value, list):
             yield from value
@@ -69,5 +70,7 @@ def cmd_summarize(upstream: Generator[Any, None, None]) -> Generator[str, None, 
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     for item in upstream:
         text = str(item) if not isinstance(item, str) else item
-        response = client.chat.completions.create(model="gpt-4o-mini", messages=[{"role": "user", "content": f"Summarize this text concisely:\n\n{text}"}], max_tokens=500)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini", messages=[{"role": "user", "content": f"Summarize this text concisely:\n\n{text}"}], max_tokens=500
+        )
         yield response.choices[0].message.content

@@ -1,4 +1,5 @@
 """Lexer tests."""
+
 from xlg.lexer import tokenize, Token, TokenType
 
 

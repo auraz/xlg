@@ -1,4 +1,5 @@
 """XLG CLI and REPL."""
+
 import sys
 from xlg.lexer import tokenize
 from xlg.parser import parse

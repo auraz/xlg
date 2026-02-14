@@ -1,4 +1,5 @@
 """Parser for XLG."""
+
 from dataclasses import dataclass
 from xlg.lexer import Token, TokenType
 
@@ -6,6 +7,7 @@ from xlg.lexer import Token, TokenType
 @dataclass
 class Command:
     """A command with arguments."""
+
     name: str
     args: list[str | int | float]
 
@@ -13,6 +15,7 @@ class Command:
 @dataclass
 class Pipeline:
     """A pipeline of commands."""
+
     commands: list[Command]
 
 

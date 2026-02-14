@@ -1,4 +1,5 @@
 """Pipeline execution engine."""
+
 from collections.abc import Callable, Generator
 from typing import Any
 

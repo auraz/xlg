@@ -1,11 +1,14 @@
 """Tests for discovery commands."""
+
 from xlg.commands.discovery import cmd_reddit, cmd_hn, cmd_museum
 
 
 def test_cmd_reddit_yields_items(mocker):
     """Test reddit command yields items with title, url, source."""
     mock_response = mocker.Mock()
-    mock_response.json.return_value = {"data": {"children": [{"data": {"title": "Cool Art", "permalink": "/r/Art/123"}}, {"data": {"title": "Nice Painting", "permalink": "/r/Art/456"}}]}}
+    mock_response.json.return_value = {
+        "data": {"children": [{"data": {"title": "Cool Art", "permalink": "/r/Art/123"}}, {"data": {"title": "Nice Painting", "permalink": "/r/Art/456"}}]}
+    }
     mocker.patch("httpx.get", return_value=mock_response)
     result = list(cmd_reddit("r/Art", "monet"))
     assert len(result) == 2
@@ -15,7 +18,9 @@ def test_cmd_reddit_yields_items(mocker):
 def test_cmd_hn_yields_items(mocker):
     """Test hn command yields items with title, url, source."""
     mock_response = mocker.Mock()
-    mock_response.json.return_value = {"hits": [{"title": "CLI Tool", "url": "https://example.com/tool", "objectID": "123"}, {"title": "Another Tool", "url": "", "objectID": "456"}]}
+    mock_response.json.return_value = {
+        "hits": [{"title": "CLI Tool", "url": "https://example.com/tool", "objectID": "123"}, {"title": "Another Tool", "url": "", "objectID": "456"}]
+    }
     mocker.patch("httpx.get", return_value=mock_response)
     result = list(cmd_hn("cli"))
     assert len(result) == 2
@@ -40,5 +45,6 @@ def test_cmd_museum_yields_items(mocker):
 def test_cmd_museum_unsupported_museum():
     """Test museum command raises for unsupported museum."""
     import pytest
+
     with pytest.raises(ValueError, match="unsupported museum"):
         list(cmd_museum("louvre", "monet"))

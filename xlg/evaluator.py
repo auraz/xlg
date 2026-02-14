@@ -1,4 +1,5 @@
 """Evaluator converts AST to executable pipeline."""
+
 from collections.abc import Generator
 from typing import Any
 from xlg.parser import Pipeline

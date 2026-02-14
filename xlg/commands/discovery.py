@@ -1,4 +1,5 @@
 """Discovery source commands."""
+
 import httpx
 from collections.abc import Generator
 

@@ -1,4 +1,5 @@
 """Sink commands that consume pipelines."""
+
 import sqlite3
 import subprocess
 from collections.abc import Generator
@@ -17,7 +18,7 @@ def cmd_print(upstream: Generator[Any, None, None]) -> list[Any]:
 def cmd_write(upstream: Generator[Any, None, None], path: str) -> int:
     """Write items to file."""
     count = 0
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         for item in upstream:
             f.write(str(item))
             count += 1

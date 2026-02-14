@@ -1,10 +1,12 @@
 """Lexer for XLG."""
+
 from dataclasses import dataclass
 from enum import Enum, auto
 
 
 class TokenType(Enum):
     """Token types."""
+
     STRING = auto()
     NUMBER = auto()
     PIPE = auto()
@@ -14,6 +16,7 @@ class TokenType(Enum):
 @dataclass
 class Token:
     """A lexer token."""
+
     type: TokenType
     value: str | int | float
 
@@ -34,18 +37,18 @@ def tokenize(source: str) -> list[Token]:
                 i += 1
             tokens.append(Token(TokenType.STRING, source[start:i]))
             i += 1
-        elif c == '|':
+        elif c == "|":
             tokens.append(Token(TokenType.PIPE, "|"))
             i += 1
         elif c.isdigit():
             start = i
-            while i < len(source) and (source[i].isdigit() or source[i] == '.'):
+            while i < len(source) and (source[i].isdigit() or source[i] == "."):
                 i += 1
             value = source[start:i]
-            tokens.append(Token(TokenType.NUMBER, float(value) if '.' in value else int(value)))
-        elif c.isalpha() or c == '_':
+            tokens.append(Token(TokenType.NUMBER, float(value) if "." in value else int(value)))
+        elif c.isalpha() or c == "_":
             start = i
-            while i < len(source) and (source[i].isalnum() or source[i] == '_'):
+            while i < len(source) and (source[i].isalnum() or source[i] == "_"):
                 i += 1
             tokens.append(Token(TokenType.WORD, source[start:i]))
         else:

@@ -1,4 +1,5 @@
 """Parser tests."""
+
 from xlg.parser import parse, Command, Pipeline
 from xlg.lexer import tokenize
 
