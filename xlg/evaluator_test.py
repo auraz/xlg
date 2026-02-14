@@ -10,7 +10,7 @@ def test_evaluate_print(capsys):
     pipeline = Pipeline([Command("print", [])])
     def source():
         yield "hello"
-    result = evaluate(pipeline, source)
+    result = evaluate(pipeline, source())
     assert result == ["hello"]
 
 
