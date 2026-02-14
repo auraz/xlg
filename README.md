@@ -24,7 +24,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 ## Commands
 
 **Sources:** `fetch`, `read`, `reddit`, `hn`, `museum`
-**Transforms:** `parse`, `get`, `filter`, `sort`, `take`, `summarize`
+**Transforms:** `parse` (json, csv, rss), `get`, `filter`, `sort`, `take`, `summarize`
 **Sinks:** `print`, `write`, `store`, `play`, `open`
 
 ## Examples
@@ -56,6 +56,20 @@ xlg 'hn "python" | take 5 | open'
 
 # Browse Met Museum artworks
 xlg 'museum "met" "monet" | take 5 | open'
+
+# Parse RSS feeds
+xlg 'fetch "https://feed.url/rss" | parse rss | take 3 | open'
+```
+
+## Discovery
+
+Find and open interesting content:
+
+```bash
+xlg 'reddit "r/Art" "impressionist" | take 3 | open'
+xlg 'hn "cli tool" | take 3 | open'
+xlg 'museum "met" "monet" | take 2 | open'
+xlg 'fetch "https://feed.url/rss" | parse rss | take 3 | open'
 ```
 
 ## Summarize Setup
