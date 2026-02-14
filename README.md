@@ -17,3 +17,4 @@ In development. See [design doc](docs/plans/2026-02-14-xlg-design.md).
 - **Pipeline**: Chains generators together for lazy evaluation - complete
 - **Commands**: Built-in commands (read source, print sink, parse transform) - in progress
 - **Evaluator**: Executes pipeline AST by wiring commands together - complete
+- **CLI/REPL**: Command-line interface and interactive REPL - complete
