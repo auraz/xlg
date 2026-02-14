@@ -13,6 +13,6 @@ def cmd_fetch(url: str) -> Generator[str, None, None]:
     """Fetch URL content."""
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
-    response = httpx.get(url)
+    response = httpx.get(url, follow_redirects=True)
     response.raise_for_status()
     yield response.text

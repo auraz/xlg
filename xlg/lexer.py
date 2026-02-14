@@ -26,10 +26,11 @@ def tokenize(source: str) -> list[Token]:
         c = source[i]
         if c.isspace():
             i += 1
-        elif c == '"':
+        elif c in ('"', "'"):
+            quote = c
             i += 1
             start = i
-            while i < len(source) and source[i] != '"':
+            while i < len(source) and source[i] != quote:
                 i += 1
             tokens.append(Token(TokenType.STRING, source[start:i]))
             i += 1
