@@ -23,7 +23,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 
 ## Commands
 
-**Sources:** `fetch`, `read`
+**Sources:** `fetch`, `read`, `reddit`
 **Transforms:** `parse`, `get`, `filter`, `sort`, `take`, `summarize`
 **Sinks:** `print`, `write`, `store`, `play`, `open`
 
@@ -47,6 +47,9 @@ xlg 'play "Beatles"'
 
 # Open URLs in browser
 xlg 'fetch "api/links" | parse json | get "items" | open'
+
+# Browse Reddit posts
+xlg 'reddit "r/Art" "monet" | take 5 | open'
 ```
 
 ## Summarize Setup
