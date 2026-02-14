@@ -4,7 +4,7 @@ from typing import Any
 from xlg.parser import Pipeline, Command
 from xlg.commands.sources import cmd_read, cmd_fetch
 from xlg.commands.transforms import cmd_parse
-from xlg.commands.sinks import cmd_print, cmd_write
+from xlg.commands.sinks import cmd_print, cmd_store, cmd_write
 
 
 COMMANDS = {
@@ -13,6 +13,7 @@ COMMANDS = {
     "parse": cmd_parse,
     "print": cmd_print,
     "write": cmd_write,
+    "store": cmd_store,
 }
 
 
@@ -32,5 +33,7 @@ def evaluate(ast: Pipeline, source: Callable[[], Generator] | None = None) -> An
         elif cmd.name == "print":
             return handler(stream)
         elif cmd.name == "write":
+            return handler(stream, cmd.args[0])
+        elif cmd.name == "store":
             return handler(stream, cmd.args[0])
     return list(stream) if stream else []

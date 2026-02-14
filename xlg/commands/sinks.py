@@ -1,4 +1,5 @@
 """Sink commands that consume pipelines."""
+import sqlite3
 from collections.abc import Generator
 from typing import Any
 
@@ -19,4 +20,21 @@ def cmd_write(upstream: Generator[Any, None, None], path: str) -> int:
         for item in upstream:
             f.write(str(item))
             count += 1
+    return count
+
+
+def cmd_store(upstream: Generator[Any, None, None], path: str) -> int:
+    """Store items in SQLite database."""
+    conn = sqlite3.connect(path)
+    count = 0
+    for item in upstream:
+        if isinstance(item, dict):
+            if count == 0:
+                cols = ", ".join(item.keys())
+                placeholders = ", ".join("?" * len(item))
+                conn.execute(f"CREATE TABLE IF NOT EXISTS data ({cols})")
+            conn.execute(f"INSERT INTO data VALUES ({placeholders})", list(item.values()))
+            count += 1
+    conn.commit()
+    conn.close()
     return count
