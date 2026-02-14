@@ -34,6 +34,7 @@ def cmd_museum(museum: str, query: str) -> Generator[dict, None, None]:
     object_ids = response.json().get("objectIDs") or []
     for oid in object_ids[:10]:
         obj_response = httpx.get(f"https://collectionapi.metmuseum.org/public/collection/v1/objects/{oid}")
+        obj_response.raise_for_status()
         obj = obj_response.json()
         if obj.get("primaryImage"):
             yield {"title": obj["title"], "url": f"https://www.metmuseum.org/art/collection/search/{oid}", "source": "museum"}

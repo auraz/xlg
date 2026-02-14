@@ -35,3 +35,10 @@ def test_cmd_museum_yields_items(mocker):
     result = list(cmd_museum("met", "monet"))
     assert len(result) == 2
     assert result[0] == {"title": "Water Lilies", "url": "https://www.metmuseum.org/art/collection/search/1", "source": "museum"}
+
+
+def test_cmd_museum_unsupported_museum():
+    """Test museum command raises for unsupported museum."""
+    import pytest
+    with pytest.raises(ValueError, match="unsupported museum"):
+        list(cmd_museum("louvre", "monet"))
