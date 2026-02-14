@@ -4,7 +4,7 @@ from collections.abc import Generator
 from typing import Any
 from xlg.parser import Pipeline
 from xlg.commands.sources import cmd_read, cmd_fetch
-from xlg.commands.discovery import cmd_reddit, cmd_hn, cmd_museum
+from xlg.commands.discovery import cmd_reddit, cmd_hn, cmd_museum, cmd_github, cmd_wiki
 from xlg.commands.transforms import cmd_parse, cmd_get, cmd_filter, cmd_take, cmd_sort, cmd_summarize
 from xlg.commands.sinks import cmd_open, cmd_play, cmd_print, cmd_store, cmd_write
 
@@ -24,6 +24,10 @@ def evaluate(ast: Pipeline, source: Generator | None = None) -> Any:
             stream = cmd_hn(args[0])
         elif name == "museum":
             stream = cmd_museum(args[0], args[1])
+        elif name == "github":
+            stream = cmd_github(args[0])
+        elif name == "wiki":
+            stream = cmd_wiki(args[0] if args else "")
         elif name == "parse":
             stream = cmd_parse(stream, args[0])
         elif name == "get":

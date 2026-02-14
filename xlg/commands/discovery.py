@@ -40,3 +40,29 @@ def cmd_museum(museum: str, query: str) -> Generator[dict, None, None]:
         obj = obj_response.json()
         if obj.get("primaryImage"):
             yield {"title": obj["title"], "url": f"https://www.metmuseum.org/art/collection/search/{oid}", "source": "museum"}
+
+
+def cmd_github(query: str) -> Generator[dict, None, None]:
+    """Fetch repositories from GitHub."""
+    url = f"https://api.github.com/search/repositories?q={query}&sort=stars&per_page=10"
+    response = httpx.get(url, headers={"User-Agent": "xlg/0.1"})
+    response.raise_for_status()
+    for repo in response.json()["items"]:
+        yield {"title": f"{repo['full_name']}: {repo['description'] or ''}", "url": repo["html_url"], "source": "github"}
+
+
+def cmd_wiki(query: str = "") -> Generator[dict, None, None]:
+    """Fetch articles from Wikipedia."""
+    headers = {"User-Agent": "xlg/0.1"}
+    if query:
+        url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={query}&format=json&srlimit=10"
+        response = httpx.get(url, headers=headers)
+        response.raise_for_status()
+        for item in response.json()["query"]["search"]:
+            yield {"title": item["title"], "url": f"https://en.wikipedia.org/wiki/{item['title'].replace(' ', '_')}", "source": "wikipedia"}
+    else:
+        for _ in range(5):
+            response = httpx.get("https://en.wikipedia.org/api/rest_v1/page/random/summary", headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            yield {"title": data["title"], "url": data["content_urls"]["desktop"]["page"], "source": "wikipedia"}

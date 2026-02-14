@@ -1,6 +1,6 @@
 """Tests for discovery commands."""
 
-from xlg.commands.discovery import cmd_reddit, cmd_hn, cmd_museum
+from xlg.commands.discovery import cmd_reddit, cmd_hn, cmd_museum, cmd_github, cmd_wiki
 
 
 def test_cmd_reddit_yields_items(mocker):
@@ -48,3 +48,23 @@ def test_cmd_museum_unsupported_museum():
 
     with pytest.raises(ValueError, match="unsupported museum"):
         list(cmd_museum("louvre", "monet"))
+
+
+def test_cmd_github_yields_items(mocker):
+    """Test github command yields items with title, url, source."""
+    mock_response = mocker.Mock()
+    mock_response.json.return_value = {"items": [{"full_name": "user/repo", "description": "A cool tool", "html_url": "https://github.com/user/repo"}]}
+    mocker.patch("httpx.get", return_value=mock_response)
+    result = list(cmd_github("cli"))
+    assert len(result) == 1
+    assert result[0] == {"title": "user/repo: A cool tool", "url": "https://github.com/user/repo", "source": "github"}
+
+
+def test_cmd_wiki_search_yields_items(mocker):
+    """Test wiki command with query yields search results."""
+    mock_response = mocker.Mock()
+    mock_response.json.return_value = {"query": {"search": [{"title": "Python (programming language)"}]}}
+    mocker.patch("httpx.get", return_value=mock_response)
+    result = list(cmd_wiki("python"))
+    assert len(result) == 1
+    assert result[0] == {"title": "Python (programming language)", "url": "https://en.wikipedia.org/wiki/Python_(programming_language)", "source": "wikipedia"}

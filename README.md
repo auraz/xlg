@@ -23,7 +23,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 
 ## Commands
 
-**Sources:** `fetch`, `read`, `reddit`, `hn`, `museum`
+**Sources:** `fetch`, `read`, `reddit`, `hn`, `museum`, `github`, `wiki`
 **Transforms:** `parse` (json, csv, rss), `get`, `filter`, `sort`, `take`, `summarize`
 **Sinks:** `print`, `write`, `store`, `play`, `open`
 
@@ -69,7 +69,9 @@ Find and open interesting content:
 xlg 'reddit "r/Art" "impressionist" | take 3 | open'
 xlg 'hn "cli tool" | take 3 | open'
 xlg 'museum "met" "monet" | take 2 | open'
-xlg 'fetch "https://feed.url/rss" | parse rss | take 3 | open'
+xlg 'github "language:rust cli" | take 3 | open'
+xlg 'wiki "artificial intelligence" | take 3 | open'
+xlg 'wiki | open'  # random articles
 ```
 
 ## Summarize Setup
