@@ -30,3 +30,13 @@ def cmd_filter(upstream: Generator[Any, None, None], field: str, value: str) -> 
     for item in upstream:
         if str(item.get(field)) == str(value):
             yield item
+
+
+def cmd_take(upstream: Generator[Any, None, None], n: int) -> Generator[Any, None, None]:
+    """Take first n items."""
+    count = 0
+    for item in upstream:
+        if count >= n:
+            break
+        yield item
+        count += 1

@@ -1,5 +1,5 @@
 """Transform command tests."""
-from xlg.commands.transforms import cmd_parse, cmd_get, cmd_filter
+from xlg.commands.transforms import cmd_parse, cmd_get, cmd_filter, cmd_take
 
 
 def test_parse_json():
@@ -29,3 +29,13 @@ def test_filter_by_field():
         yield {"name": "bob", "active": "false"}
     result = list(cmd_filter(source(), "active", "true"))
     assert result == [{"name": "alice", "active": "true"}]
+
+
+def test_take_n():
+    def source():
+        yield 1
+        yield 2
+        yield 3
+        yield 4
+    result = list(cmd_take(source(), 2))
+    assert result == [1, 2]
