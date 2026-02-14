@@ -1,5 +1,6 @@
 """Sink commands that consume pipelines."""
 import sqlite3
+import subprocess
 from collections.abc import Generator
 from typing import Any
 
@@ -38,3 +39,12 @@ def cmd_store(upstream: Generator[Any, None, None], path: str) -> int:
     conn.commit()
     conn.close()
     return count
+
+
+def cmd_play(query: str) -> str:
+    """Play music via Apple Music."""
+    script = f'tell application "Music" to play (first track whose name contains "{query}" or artist contains "{query}")'
+    result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"Apple Music error: {result.stderr}")
+    return f"Playing: {query}"

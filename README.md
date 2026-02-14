@@ -25,7 +25,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 
 **Sources:** `fetch`, `read`
 **Transforms:** `parse`, `get`, `filter`, `sort`, `take`, `summarize`
-**Sinks:** `print`, `write`, `store`
+**Sinks:** `print`, `write`, `store`, `play`
 
 ## Examples
 
@@ -39,8 +39,11 @@ xlg 'read "data.csv" | parse csv | filter "region" "west" | print'
 # JSON extraction
 xlg 'fetch "api/data" | parse json | get "items" | take 10 | print'
 
-# Summarize with Apple Intelligence (macOS only)
+# Summarize text
 xlg 'read "article.txt" | summarize | print'
+
+# Play music (macOS)
+xlg 'play "Beatles"'
 ```
 
 ## Summarize Setup
