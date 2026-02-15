@@ -61,20 +61,33 @@ def cmd_play(query: str) -> str:
 
     if key_id and team_id and private_key:
         am = AppleMusic(secret_key=private_key, key_id=key_id, team_id=team_id)
+        player_app = Path.home() / "Applications" / "XlgPlayer.app" / "Contents" / "MacOS" / "xlg-player"
+        is_playlist = 'playlist' in query.lower()
+
+        if is_playlist:
+            results = am.search(query, types=['playlists'], limit=1)
+            playlists = results.get('results', {}).get('playlists', {}).get('data', [])
+            if not playlists:
+                raise RuntimeError(f"No playlists found for: {query}")
+            playlist = playlists[0]
+            playlist_id = playlist['id']
+            playlist_name = playlist['attributes']['name']
+            if player_app.exists():
+                subprocess.Popen([str(player_app), '--playlist', playlist_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return f"Playing playlist: {playlist_name}"
+            subprocess.run(["open", f"music://music.apple.com/us/playlist/{playlist_id}"])
+            return f"Opening playlist: {playlist_name}"
+
         results = am.search(query, types=['songs'], limit=1)
         songs = results.get('results', {}).get('songs', {}).get('data', [])
         if not songs:
             raise RuntimeError(f"No songs found for: {query}")
-
         song = songs[0]
         song_id = song['id']
         song_name = song['attributes']['name']
-
-        player_app = Path.home() / "Applications" / "XlgPlayer.app" / "Contents" / "MacOS" / "xlg-player"
         if player_app.exists():
             subprocess.Popen([str(player_app), song_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             return f"Playing: {song_name}"
-
         subprocess.run(["open", f"music://music.apple.com/us/song/{song_id}"])
         return f"Opening: {song_name} (click to play)"
 

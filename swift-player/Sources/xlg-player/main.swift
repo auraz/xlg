@@ -7,11 +7,17 @@ struct XlgPlayer {
     static func main() {
         let args = CommandLine.arguments
         guard args.count > 1 else {
-            print("Usage: xlg-player <song-id>")
+            print("Usage: xlg-player [--playlist] <id> [id2 ...]")
             return
         }
 
-        let songId = args[1]
+        let isPlaylist = args[1] == "--playlist"
+        let ids = isPlaylist ? Array(args.dropFirst(2)) : Array(args.dropFirst(1))
+        guard !ids.isEmpty else {
+            print("No IDs provided")
+            return
+        }
+
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
 
@@ -28,21 +34,37 @@ struct XlgPlayer {
             }
 
             do {
-                let request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: MusicItemID(songId))
-                let response = try await request.response()
-                guard let song = response.items.first else {
-                    print("Song not found")
-                    app.terminate(nil)
-                    return
-                }
-
                 let player = ApplicationMusicPlayer.shared
-                player.queue = [song]
-                try await player.play()
-                print("Playing: \(song.title)")
 
-                // Keep app running for playback
-                // App will run until terminated
+                if isPlaylist {
+                    let request = MusicCatalogResourceRequest<Playlist>(matching: \.id, equalTo: MusicItemID(ids[0]))
+                    let response = try await request.response()
+                    guard let playlist = response.items.first else {
+                        print("Playlist not found")
+                        app.terminate(nil)
+                        return
+                    }
+                    player.queue = [playlist]
+                    try await player.play()
+                    print("Playing playlist: \(playlist.name)")
+                } else {
+                    var songs: [Song] = []
+                    for id in ids {
+                        let request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: MusicItemID(id))
+                        let response = try await request.response()
+                        if let song = response.items.first {
+                            songs.append(song)
+                        }
+                    }
+                    guard !songs.isEmpty else {
+                        print("No songs found")
+                        app.terminate(nil)
+                        return
+                    }
+                    player.queue = ApplicationMusicPlayer.Queue(for: songs)
+                    try await player.play()
+                    print("Playing: \(songs.map { $0.title }.joined(separator: ", "))")
+                }
             } catch {
                 print("Error: \(error)")
                 app.terminate(nil)
