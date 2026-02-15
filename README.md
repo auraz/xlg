@@ -42,7 +42,7 @@ xlg 'fetch "api/data" | parse json | get "items" | take 10 | print'
 # Summarize text
 xlg 'read "article.txt" | summarize | print'
 
-# Play music (macOS) - library first, then opens catalog search
+# Play music (macOS) - searches Apple Music catalog, auto-plays
 xlg 'play "Beatles"'
 
 # Open URLs in browser
@@ -84,11 +84,10 @@ export OPENAI_API_KEY="your-key"
 
 ## Play Setup (Apple Music Catalog)
 
-To search and play from Apple Music catalog (not just your library), configure MusicKit:
+To search and auto-play from Apple Music catalog:
 
 1. Get credentials from [Apple Developer Portal](https://developer.apple.com/account/resources/authkeys/list):
-   - Create a MusicKit identifier
-   - Download the private key (`.p8` file)
+   - Keys → + → Enable MusicKit → Download `.p8` file
    - Note your Key ID and Team ID
 
 2. Create config file:
@@ -103,7 +102,19 @@ APPLE_MUSIC_KEY_PATH=~/.config/xlg/AuthKey.p8
 EOF
 ```
 
-Without these, `play` searches your local library only.
+3. Authorize (one-time):
+
+```bash
+xlg auth
+```
+
+Opens browser → Click "Authorize" → Sign in with Apple ID → Done.
+
+Now `play` searches Apple Music catalog and auto-plays:
+
+```bash
+xlg 'play "Daft Punk Around the World"'
+```
 
 ## Development
 
