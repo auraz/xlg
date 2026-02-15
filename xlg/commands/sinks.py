@@ -44,11 +44,23 @@ def cmd_store(upstream: Generator[Any, None, None], path: str) -> int:
 
 def cmd_play(query: str) -> str:
     """Play music via Apple Music."""
-    script = f'tell application "Music" to play (first track whose name contains "{query}" or artist contains "{query}")'
+    script = f'''
+    tell application "Music"
+        set searchResults to search library playlist 1 for "{query}"
+        if (count of searchResults) > 0 then
+            play item 1 of searchResults
+            return name of item 1 of searchResults
+        else
+            return "not found"
+        end if
+    end tell
+    '''
     result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(f"Apple Music error: {result.stderr}")
-    return f"Playing: {query}"
+    if result.stdout.strip() == "not found":
+        raise RuntimeError(f"No tracks found for: {query}")
+    return f"Playing: {result.stdout.strip()}"
 
 
 def cmd_open(upstream: Generator[Any, None, None]) -> list[str]:
