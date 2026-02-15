@@ -5,6 +5,8 @@ import subprocess
 from collections.abc import Generator
 from typing import Any
 
+from applemusicpy import AppleMusic
+
 
 def cmd_print(upstream: Generator[Any, None, None]) -> list[Any]:
     """Print each item and return collected results."""
@@ -43,7 +45,27 @@ def cmd_store(upstream: Generator[Any, None, None], path: str) -> int:
 
 
 def cmd_play(query: str) -> str:
-    """Play music via Apple Music - searches library first, then opens catalog search."""
+    """Play music via Apple Music - uses MusicKit API if configured, else library search."""
+    import os
+    key_id = os.environ.get('APPLE_MUSIC_KEY_ID')
+    team_id = os.environ.get('APPLE_MUSIC_TEAM_ID')
+    private_key = os.environ.get('APPLE_MUSIC_PRIVATE_KEY')
+    key_path = os.environ.get('APPLE_MUSIC_KEY_PATH')
+
+    if key_path and not private_key:
+        with open(os.path.expanduser(key_path)) as f:
+            private_key = f.read()
+
+    if key_id and team_id and private_key:
+        am = AppleMusic(secret_key=private_key, key_id=key_id, team_id=team_id)
+        results = am.search(query, types=['songs'], limit=1)
+        songs = results.get('results', {}).get('songs', {}).get('data', [])
+        if not songs:
+            raise RuntimeError(f"No songs found for: {query}")
+        song_id = songs[0]['id']
+        subprocess.run(["open", f"music://music.apple.com/us/song/{song_id}"])
+        return f"Playing: {query}"
+
     script = f'''
     tell application "Music"
         set searchResults to search library playlist 1 for "{query}"
