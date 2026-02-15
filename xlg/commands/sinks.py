@@ -1,12 +1,29 @@
 """Sink commands that consume pipelines."""
 
 import os
+import socket
 import sqlite3
 import subprocess
 from collections.abc import Generator
 from typing import Any
 
 from applemusicpy import AppleMusic
+
+PLAYER_SOCKET = "/tmp/xlg-player.sock"
+
+
+def send_to_player(command: str) -> bool:
+    """Send command to running player via Unix socket."""
+    try:
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.settimeout(1.0)
+        sock.connect(PLAYER_SOCKET)
+        sock.sendall(command.encode())
+        response = sock.recv(64).decode().strip()
+        sock.close()
+        return response == "OK"
+    except (socket.error, OSError):
+        return False
 
 
 def cmd_print(upstream: Generator[Any, None, None]) -> list[Any]:
@@ -75,7 +92,8 @@ def cmd_play(query: str) -> str:
             playlist_id = playlist['id']
             playlist_name = playlist['attributes']['name']
             if player_app.exists():
-                subprocess.run(['pkill', '-f', 'xlg-player'], stderr=subprocess.DEVNULL)
+                if send_to_player(f"--playlist {playlist_id}"):
+                    return f"Playing playlist: {playlist_name}"
                 subprocess.Popen([str(player_app), '--playlist', playlist_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 return f"Playing playlist: {playlist_name}"
             subprocess.run(["open", f"music://music.apple.com/us/playlist/{playlist_id}"])
@@ -89,7 +107,8 @@ def cmd_play(query: str) -> str:
         song_id = song['id']
         song_name = song['attributes']['name']
         if player_app.exists():
-            subprocess.run(['pkill', '-f', 'xlg-player'], stderr=subprocess.DEVNULL)
+            if send_to_player(song_id):
+                return f"Playing: {song_name}"
             subprocess.Popen([str(player_app), song_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             return f"Playing: {song_name}"
         subprocess.run(["open", f"music://music.apple.com/us/song/{song_id}"])

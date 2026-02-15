@@ -55,8 +55,8 @@ def test_cmd_open(mocker):
     assert mock_run.call_count == 2
 
 
-def test_cmd_play_musickit_searches_catalog(mocker):
-    """Test play uses MusicKit API and native player when available."""
+def test_cmd_play_musickit_uses_socket_when_running(mocker):
+    """Test play sends to existing player via socket."""
     mocker.patch('xlg.config.load_config', return_value={
         'APPLE_MUSIC_KEY_ID': 'test-key-id',
         'APPLE_MUSIC_TEAM_ID': 'test-team-id',
@@ -68,20 +68,43 @@ def test_cmd_play_musickit_searches_catalog(mocker):
         'APPLE_MUSIC_PRIVATE_KEY': 'test-private-key',
     })
     mock_am = mocker.MagicMock()
-    mock_am.search.return_value = {
-        'results': {'songs': {'data': [{'id': '123456789', 'attributes': {'name': 'Test Song'}}]}}
-    }
+    mock_am.search.return_value = {'results': {'songs': {'data': [{'id': '123456789', 'attributes': {'name': 'Test Song'}}]}}}
     mocker.patch('xlg.commands.sinks.AppleMusic', return_value=mock_am)
-    mock_path = mocker.patch('pathlib.Path.exists', return_value=True)
+    mocker.patch('pathlib.Path.exists', return_value=True)
+    mock_send = mocker.patch('xlg.commands.sinks.send_to_player', return_value=True)
+
+    from xlg.commands.sinks import cmd_play
+    result = cmd_play("Gorillaz")
+
+    mock_send.assert_called_once_with('123456789')
+    assert result == 'Playing: Test Song'
+
+
+def test_cmd_play_musickit_starts_new_player(mocker):
+    """Test play starts new player when socket fails."""
+    mocker.patch('xlg.config.load_config', return_value={
+        'APPLE_MUSIC_KEY_ID': 'test-key-id',
+        'APPLE_MUSIC_TEAM_ID': 'test-team-id',
+        'APPLE_MUSIC_KEY_PATH': '',
+    })
+    mocker.patch.dict('os.environ', {
+        'APPLE_MUSIC_KEY_ID': 'test-key-id',
+        'APPLE_MUSIC_TEAM_ID': 'test-team-id',
+        'APPLE_MUSIC_PRIVATE_KEY': 'test-private-key',
+    })
+    mock_am = mocker.MagicMock()
+    mock_am.search.return_value = {'results': {'songs': {'data': [{'id': '123456789', 'attributes': {'name': 'Test Song'}}]}}}
+    mocker.patch('xlg.commands.sinks.AppleMusic', return_value=mock_am)
+    mocker.patch('pathlib.Path.exists', return_value=True)
+    mocker.patch('xlg.commands.sinks.send_to_player', return_value=False)
     mock_popen = mocker.patch('subprocess.Popen')
 
     from xlg.commands.sinks import cmd_play
     result = cmd_play("Gorillaz")
 
-    mock_am.search.assert_called_once_with('Gorillaz', types=['songs'], limit=1)
     mock_popen.assert_called_once()
     assert '123456789' in mock_popen.call_args[0][0][1]
-    assert 'Playing: Test Song' == result
+    assert result == 'Playing: Test Song'
 
 
 def test_cmd_play_falls_back_to_applescript(mocker):
