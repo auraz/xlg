@@ -102,13 +102,15 @@ APPLE_MUSIC_KEY_PATH=~/.config/xlg/AuthKey.p8
 EOF
 ```
 
-3. Authorize (one-time):
+3. Install native player (macOS 14+):
 
 ```bash
-xlg auth
+cd swift-player && swift build -c release
+mkdir -p ~/Applications
+cp -r XlgPlayer.app ~/Applications/
 ```
 
-Opens browser → Click "Authorize" → Sign in with Apple ID → Done.
+On first run, grant MusicKit authorization when prompted.
 
 Now `play` searches Apple Music catalog and auto-plays:
 

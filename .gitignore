@@ -10,5 +10,11 @@ build/
 .ruff_cache/
 .pytest_cache/
 
+# Swift
+swift-player/.build/
+swift-player/XlgPlayer.app/Contents/MacOS/
+swift-player/XlgPlayer.app/Contents/_CodeSignature/
+swift-player/XlgPlayer.app/Contents/embedded.provisionprofile
+
 # Local
 .claude/
