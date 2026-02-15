@@ -53,3 +53,27 @@ def test_cmd_open(mocker):
     result = cmd_open(items)
     assert result == ["https://example.com/art", "https://example.com/music"]
     assert mock_run.call_count == 2
+
+
+def test_cmd_play_musickit_searches_catalog(mocker):
+    """Test play uses MusicKit API when credentials available."""
+    mocker.patch.dict('os.environ', {
+        'APPLE_MUSIC_KEY_ID': 'test-key-id',
+        'APPLE_MUSIC_TEAM_ID': 'test-team-id',
+        'APPLE_MUSIC_PRIVATE_KEY': 'test-private-key',
+    })
+    mock_am = mocker.MagicMock()
+    mock_am.search.return_value = {
+        'results': {'songs': {'data': [{'id': '123456789'}]}}
+    }
+    mocker.patch('xlg.commands.sinks.AppleMusic', return_value=mock_am)
+    mock_open = mocker.patch('subprocess.run')
+
+    from xlg.commands.sinks import cmd_play
+    result = cmd_play("Gorillaz")
+
+    mock_am.search.assert_called_once_with('Gorillaz', types=['songs'], limit=1)
+    mock_open.assert_called_once()
+    assert 'music://music.apple.com' in mock_open.call_args[0][0][1]
+    assert '123456789' in mock_open.call_args[0][0][1]
+    assert 'Playing' in result
