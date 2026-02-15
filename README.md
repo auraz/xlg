@@ -82,6 +82,24 @@ The `summarize` command uses OpenAI API. Set your API key:
 export OPENAI_API_KEY="your-key"
 ```
 
+## Play Setup (Apple Music Catalog)
+
+To search and play from Apple Music catalog (not just your library), configure MusicKit:
+
+1. Get credentials from [Apple Developer Portal](https://developer.apple.com/account/resources/authkeys/list):
+   - Create a MusicKit identifier
+   - Download the private key (`.p8` file)
+   - Note your Key ID and Team ID
+
+2. Set environment variables:
+
+```bash
+export APPLE_MUSIC_KEY_ID="your-key-id"
+export APPLE_MUSIC_TEAM_ID="your-team-id"
+export APPLE_MUSIC_KEY_PATH="~/.config/xlg/AuthKey.p8"
+```
+
+Without these, `play` searches your local library only.
 
 ## Development
 
