@@ -42,7 +42,7 @@ xlg 'fetch "api/data" | parse json | get "items" | take 10 | print'
 # Summarize text
 xlg 'read "article.txt" | summarize | print'
 
-# Play music from your Apple Music library (macOS)
+# Play music (macOS) - searches library, falls back to Apple Music catalog
 xlg 'play "Beatles"'
 
 # Open URLs in browser
