@@ -75,6 +75,7 @@ def cmd_play(query: str) -> str:
             playlist_id = playlist['id']
             playlist_name = playlist['attributes']['name']
             if player_app.exists():
+                subprocess.run(['pkill', '-f', 'xlg-player'], stderr=subprocess.DEVNULL)
                 subprocess.Popen([str(player_app), '--playlist', playlist_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 return f"Playing playlist: {playlist_name}"
             subprocess.run(["open", f"music://music.apple.com/us/playlist/{playlist_id}"])
@@ -88,6 +89,7 @@ def cmd_play(query: str) -> str:
         song_id = song['id']
         song_name = song['attributes']['name']
         if player_app.exists():
+            subprocess.run(['pkill', '-f', 'xlg-player'], stderr=subprocess.DEVNULL)
             subprocess.Popen([str(player_app), song_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             return f"Playing: {song_name}"
         subprocess.run(["open", f"music://music.apple.com/us/song/{song_id}"])
