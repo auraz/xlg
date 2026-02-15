@@ -42,7 +42,7 @@ xlg 'fetch "api/data" | parse json | get "items" | take 10 | print'
 # Summarize text
 xlg 'read "article.txt" | summarize | print'
 
-# Play music (macOS) - searches Apple Music catalog
+# Play music (macOS) - library first, then opens catalog search
 xlg 'play "Beatles"'
 
 # Open URLs in browser
@@ -82,14 +82,6 @@ The `summarize` command uses OpenAI API. Set your API key:
 export OPENAI_API_KEY="your-key"
 ```
 
-## Play Setup (macOS)
-
-The `play` command uses a Shortcut to search Apple Music catalog. Create it:
-
-1. Open Shortcuts app
-2. Create new shortcut named **"Play Music"**
-3. Add actions: **Search Apple Music** → **Get First Item** → **Play Music**
-4. Set "Search Apple Music" input to **Shortcut Input**
 
 ## Development
 

@@ -43,17 +43,27 @@ def cmd_store(upstream: Generator[Any, None, None], path: str) -> int:
 
 
 def cmd_play(query: str) -> str:
-    """Play music via Shortcuts - searches Apple Music catalog."""
-    import tempfile
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
-        f.write(query)
-        input_path = f.name
-    result = subprocess.run(["shortcuts", "run", "Play Music", "-i", input_path], capture_output=True, text=True)
-    import os
-    os.unlink(input_path)
+    """Play music via Apple Music - searches library first, then opens catalog search."""
+    script = f'''
+    tell application "Music"
+        set searchResults to search library playlist 1 for "{query}"
+        if (count of searchResults) > 0 then
+            play item 1 of searchResults
+            return "playing:" & name of item 1 of searchResults
+        else
+            return "not found"
+        end if
+    end tell
+    '''
+    result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
     if result.returncode != 0:
-        raise RuntimeError(f"Shortcut error: {result.stderr.strip() or 'Shortcut \"Play Music\" not found'}")
-    return f"Playing: {query}"
+        raise RuntimeError(f"Apple Music error: {result.stderr}")
+    output = result.stdout.strip()
+    if output.startswith("playing:"):
+        return f"Playing: {output[8:]}"
+    from urllib.parse import quote
+    subprocess.run(["open", f"music://music.apple.com/search?term={quote(query)}"])
+    return f"Searching Apple Music for: {query}"
 
 
 def cmd_open(upstream: Generator[Any, None, None]) -> list[str]:
