@@ -44,7 +44,13 @@ def cmd_store(upstream: Generator[Any, None, None], path: str) -> int:
 
 def cmd_play(query: str) -> str:
     """Play music via Shortcuts - searches Apple Music catalog."""
-    result = subprocess.run(["shortcuts", "run", "Play Music", "--input-type", "text", "--input", query], capture_output=True, text=True)
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+        f.write(query)
+        input_path = f.name
+    result = subprocess.run(["shortcuts", "run", "Play Music", "-i", input_path], capture_output=True, text=True)
+    import os
+    os.unlink(input_path)
     if result.returncode != 0:
         raise RuntimeError(f"Shortcut error: {result.stderr.strip() or 'Shortcut \"Play Music\" not found'}")
     return f"Playing: {query}"
