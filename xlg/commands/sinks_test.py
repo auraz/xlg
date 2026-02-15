@@ -77,3 +77,24 @@ def test_cmd_play_musickit_searches_catalog(mocker):
     assert 'music://music.apple.com' in mock_open.call_args[0][0][1]
     assert '123456789' in mock_open.call_args[0][0][1]
     assert 'Playing' in result
+
+
+def test_cmd_play_falls_back_to_applescript(mocker):
+    """Test play falls back to AppleScript when MusicKit not configured."""
+    mocker.patch.dict('os.environ', {
+        'APPLE_MUSIC_KEY_ID': '',
+        'APPLE_MUSIC_TEAM_ID': '',
+        'APPLE_MUSIC_PRIVATE_KEY': '',
+        'APPLE_MUSIC_KEY_PATH': '',
+    })
+
+    mock_run = mocker.patch('subprocess.run')
+    mock_run.return_value.returncode = 0
+    mock_run.return_value.stdout = "playing:Test Song"
+    mock_run.return_value.stderr = ""
+
+    from xlg.commands.sinks import cmd_play
+    result = cmd_play("Beatles")
+
+    assert mock_run.call_args_list[0][0][0][0] == "osascript"
+    assert "Playing: Test Song" in result
