@@ -52,7 +52,8 @@ struct XlgPlayer {
                     return
                 }
                 player.queue = [playlist]
-                try await player.play()
+                try await player.prepareToPlay()
+                runAppleScript("tell application \"Music\" to play")
                 print("Playing playlist: \(playlist.name)")
             } else {
                 var songs: [Song] = []
@@ -66,7 +67,8 @@ struct XlgPlayer {
                     return
                 }
                 player.queue = ApplicationMusicPlayer.Queue(for: songs)
-                try await player.play()
+                try await player.prepareToPlay()
+                runAppleScript("tell application \"Music\" to play")
                 print("Playing: \(songs.map { $0.title }.joined(separator: ", "))")
             }
         } catch {
