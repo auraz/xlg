@@ -43,36 +43,11 @@ struct XlgPlayer {
     }
 
     @MainActor static func playContent(isPlaylist: Bool, ids: [String]) async {
-        do {
-            if isPlaylist {
-                let request = MusicCatalogResourceRequest<Playlist>(matching: \.id, equalTo: MusicItemID(ids[0]))
-                let response = try await request.response()
-                guard let playlist = response.items.first else {
-                    print("Playlist not found")
-                    return
-                }
-                player.queue = [playlist]
-                try await player.prepareToPlay()
-                runAppleScript("tell application \"Music\" to play")
-                print("Playing playlist: \(playlist.name)")
-            } else {
-                var songs: [Song] = []
-                for id in ids {
-                    let request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: MusicItemID(id))
-                    let response = try await request.response()
-                    if let song = response.items.first { songs.append(song) }
-                }
-                guard !songs.isEmpty else {
-                    print("No songs found")
-                    return
-                }
-                player.queue = ApplicationMusicPlayer.Queue(for: songs)
-                try await player.prepareToPlay()
-                runAppleScript("tell application \"Music\" to play")
-                print("Playing: \(songs.map { $0.title }.joined(separator: ", "))")
-            }
-        } catch {
-            print("Error: \(error)")
+        let urlStr = isPlaylist ? "music://music.apple.com/playlist/\(ids[0])" : "music://music.apple.com/song/\(ids[0])"
+        if let url = URL(string: urlStr) {
+            NSWorkspace.shared.open(url)
+            try? await Task.sleep(nanoseconds: 500_000_000) // Wait 0.5s for Music.app to load
+            runAppleScript("tell application \"Music\" to play")
         }
     }
 
@@ -191,19 +166,17 @@ struct XlgPlayer {
         var isPlaying = false
         var title = ""
         var artist = ""
-        let stateScript = "tell application \"Music\" to return player state as string"
-        if let script = NSAppleScript(source: stateScript) {
+        if let script = NSAppleScript(source: "tell application \"Music\" to return player state as string") {
             var error: NSDictionary?
             let result = script.executeAndReturnError(&error)
             if error == nil, result.stringValue == "playing" { isPlaying = true }
         }
-        let trackScript = "tell application \"Music\" to get {name of current track, artist of current track}"
-        if let script = NSAppleScript(source: trackScript) {
+        if let script = NSAppleScript(source: "tell application \"Music\" to get {name of current track, artist of current track}") {
             var error: NSDictionary?
             let result = script.executeAndReturnError(&error)
             if error == nil, let list = result.coerce(toDescriptorType: typeAEList) {
-                if let titleDesc = list.atIndex(1) { title = titleDesc.stringValue ?? "" }
-                if let artistDesc = list.atIndex(2) { artist = artistDesc.stringValue ?? "" }
+                if let t = list.atIndex(1) { title = t.stringValue ?? "" }
+                if let a = list.atIndex(2) { artist = a.stringValue ?? "" }
             }
         }
         let escaped = { (s: String) -> String in
