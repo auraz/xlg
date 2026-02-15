@@ -24,17 +24,56 @@
         .cmd { color: #7b2fff; }
         .str { color: #98c379; }
         .comment { color: #666; }
+        .commands { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
+        .cmd-card { background: #12121a; border: 1px solid #2a2a3a; border-radius: 8px; padding: 15px; }
+        .cmd-card h4 { color: #00d4ff; margin-bottom: 5px; }
+        .cmd-card p { color: #888; font-size: 0.9rem; }
     </style>
 </head>
 <body>
     <div class="hero">
         <h1>XLG</h1>
-        <p class="tagline">Express more in one line</p>
-        <pre><code><span class="cmd">fetch</span> <span class="str">"api.example.com/users"</span> | <span class="cmd">parse</span> json | <span class="cmd">store</span> <span class="str">"users.db"</span></code></pre>
+        <p class="tagline">Personal discovery assistant in one line</p>
+        <pre><code><span class="cmd">github</span> <span class="str">"language:rust cli"</span> | <span class="cmd">take</span> 3 | <span class="cmd">open</span></code></pre>
     </div>
 
     <div class="section">
-        <h2>Use Cases</h2>
+        <h2>Discovery</h2>
+
+        <div class="example">
+            <h3>Hacker News</h3>
+            <pre><code><span class="cmd">hn</span> <span class="str">"machine learning"</span> | <span class="cmd">take</span> 5 | <span class="cmd">open</span></code></pre>
+        </div>
+
+        <div class="example">
+            <h3>GitHub Repos</h3>
+            <pre><code><span class="cmd">github</span> <span class="str">"language:go cli"</span> | <span class="cmd">take</span> 3 | <span class="cmd">open</span></code></pre>
+        </div>
+
+        <div class="example">
+            <h3>Reddit</h3>
+            <pre><code><span class="cmd">reddit</span> <span class="str">"r/Art"</span> <span class="str">"impressionist"</span> | <span class="cmd">take</span> 5 | <span class="cmd">open</span></code></pre>
+        </div>
+
+        <div class="example">
+            <h3>Met Museum</h3>
+            <pre><code><span class="cmd">museum</span> <span class="str">"met"</span> <span class="str">"monet"</span> | <span class="cmd">take</span> 3 | <span class="cmd">open</span></code></pre>
+        </div>
+
+        <div class="example">
+            <h3>Wikipedia</h3>
+            <pre><code><span class="cmd">wiki</span> <span class="str">"quantum physics"</span> | <span class="cmd">take</span> 3 | <span class="cmd">open</span></code></pre>
+            <pre><code><span class="cmd">wiki</span> | <span class="cmd">take</span> 5 | <span class="cmd">open</span>  <span class="comment"># random articles</span></code></pre>
+        </div>
+
+        <div class="example">
+            <h3>RSS Feeds</h3>
+            <pre><code><span class="cmd">fetch</span> <span class="str">"https://hnrss.org/frontpage"</span> | <span class="cmd">parse</span> rss | <span class="cmd">take</span> 5 | <span class="cmd">open</span></code></pre>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Data Processing</h2>
 
         <div class="example">
             <h3>API to Database</h3>
@@ -47,25 +86,37 @@
         </div>
 
         <div class="example">
-            <h3>Data Pipeline</h3>
-            <pre><code><span class="cmd">fetch</span> <span class="str">"api/metrics"</span> | <span class="cmd">parse</span> json | <span class="cmd">sort</span> <span class="str">"timestamp"</span> | <span class="cmd">take</span> 100 | <span class="cmd">write</span> <span class="str">"latest.json"</span></code></pre>
+            <h3>AI Summarization</h3>
+            <pre><code><span class="cmd">read</span> <span class="str">"article.txt"</span> | <span class="cmd">summarize</span> | <span class="cmd">print</span></code></pre>
+        </div>
+
+        <div class="example">
+            <h3>Play Music</h3>
+            <pre><code><span class="cmd">play</span> <span class="str">"Beatles"</span></code></pre>
         </div>
     </div>
 
     <div class="section">
-        <h2>Python vs XLG</h2>
-        <div class="comparison">
-            <div>
-                <div class="label">Python (20+ lines)</div>
-                <pre><code><span class="comment"># imports, request, error handling,</span>
-<span class="comment"># json parsing, db connection,</span>
-<span class="comment"># table creation, insert loop,</span>
-<span class="comment"># commit, close...</span></code></pre>
-            </div>
-            <div>
-                <div class="label">XLG (1 line)</div>
-                <pre><code><span class="cmd">fetch</span> <span class="str">"url"</span> | <span class="cmd">parse</span> json | <span class="cmd">store</span> <span class="str">"data.db"</span></code></pre>
-            </div>
+        <h2>All Commands</h2>
+        <div class="commands">
+            <div class="cmd-card"><h4>fetch</h4><p>Fetch URL content</p></div>
+            <div class="cmd-card"><h4>read</h4><p>Read local file</p></div>
+            <div class="cmd-card"><h4>reddit</h4><p>Browse subreddits</p></div>
+            <div class="cmd-card"><h4>hn</h4><p>Search Hacker News</p></div>
+            <div class="cmd-card"><h4>github</h4><p>Search repositories</p></div>
+            <div class="cmd-card"><h4>wiki</h4><p>Search Wikipedia</p></div>
+            <div class="cmd-card"><h4>museum</h4><p>Browse Met Museum</p></div>
+            <div class="cmd-card"><h4>parse</h4><p>Parse json, csv, rss</p></div>
+            <div class="cmd-card"><h4>get</h4><p>Extract nested fields</p></div>
+            <div class="cmd-card"><h4>filter</h4><p>Filter by field value</p></div>
+            <div class="cmd-card"><h4>sort</h4><p>Sort by field</p></div>
+            <div class="cmd-card"><h4>take</h4><p>Take first N items</p></div>
+            <div class="cmd-card"><h4>summarize</h4><p>AI text summary</p></div>
+            <div class="cmd-card"><h4>print</h4><p>Print to console</p></div>
+            <div class="cmd-card"><h4>write</h4><p>Write to file</p></div>
+            <div class="cmd-card"><h4>store</h4><p>Save to SQLite</p></div>
+            <div class="cmd-card"><h4>open</h4><p>Open in browser</p></div>
+            <div class="cmd-card"><h4>play</h4><p>Play in Apple Music</p></div>
         </div>
     </div>
 
