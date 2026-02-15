@@ -26,7 +26,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 **Sources:** `fetch`, `read`, `reddit`, `hn`, `museum`, `github`, `wiki`
 **Transforms:** `parse` (json, csv, rss), `get`, `filter`, `sort`, `take`, `summarize`
 **Sinks:** `print`, `write`, `store`, `play`, `open`
-**Controls:** `pause`, `resume`, `toggle`, `skip`, `previous`, `volume`, `status`
+**Controls:** `pause`, `resume`, `toggle`, `skip`, `previous`, `volume`, `status`, `favorite`
 
 ## Examples
 
@@ -144,7 +144,7 @@ xlg status           # get JSON status
 
 ## Stream Deck Plugin
 
-Control XLG player from Elgato Stream Deck.
+Control Apple Music from Elgato Stream Deck.
 
 **Install:**
 
@@ -152,12 +152,18 @@ Control XLG player from Elgato Stream Deck.
 cd streamdeck-plugin
 npm install
 npm run build
-npm run install-plugin
+cp -r com.xlg.player.sdPlugin ~/Library/Application\ Support/com.elgato.StreamDeck/Plugins/
 ```
 
-Restart Stream Deck app, find "XLG Player" in Music category.
+Restart Stream Deck app, find **"XLG Controls"** category in the right sidebar.
 
-**Actions:** Play/Pause (shows track title), Next, Previous, Volume Up, Volume Down.
+**Actions:**
+- **Play/Pause** - Toggle playback, shows current track title
+- **Next** - Skip to next track
+- **Previous** - Go to previous track
+- **Volume Up** - Increase volume by 10%
+- **Volume Down** - Decrease volume by 10%
+- **Favorite** - Toggle loved status of current track
 
 ## Development
 

@@ -158,7 +158,7 @@ struct XlgPlayer {
             runAppleScript("tell application \"Music\" to previous track")
             return "OK\n"
         case "favorite", "love":
-            runAppleScript("tell application \"Music\" to set loved of current track to not (loved of current track)")
+            runAppleScript("tell application \"Music\"\nset f to favorited of current track\nset favorited of current track to not f\nend tell")
             return "OK\n"
         case "volume":
             if parts.count > 1 {
