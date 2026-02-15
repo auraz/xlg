@@ -10,7 +10,9 @@ def run(source: str) -> None:
     """Execute XLG source code."""
     tokens = tokenize(source)
     ast = parse(tokens)
-    evaluate(ast)
+    result = evaluate(ast)
+    if result is not None and not isinstance(result, list):
+        print(result)
 
 
 def repl() -> None:
