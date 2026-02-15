@@ -46,11 +46,11 @@ def cmd_store(upstream: Generator[Any, None, None], path: str) -> int:
 
 def cmd_play(query: str) -> str:
     """Play music via Apple Music - uses MusicKit API if configured, else library search."""
-    import os
-    key_id = os.environ.get('APPLE_MUSIC_KEY_ID')
-    team_id = os.environ.get('APPLE_MUSIC_TEAM_ID')
-    private_key = os.environ.get('APPLE_MUSIC_PRIVATE_KEY')
-    key_path = os.environ.get('APPLE_MUSIC_KEY_PATH')
+    from xlg.config import get_config
+    key_id = get_config('APPLE_MUSIC_KEY_ID')
+    team_id = get_config('APPLE_MUSIC_TEAM_ID')
+    private_key = get_config('APPLE_MUSIC_PRIVATE_KEY')
+    key_path = get_config('APPLE_MUSIC_KEY_PATH')
 
     if key_path and not private_key:
         with open(os.path.expanduser(key_path)) as f:

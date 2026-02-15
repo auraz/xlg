@@ -91,12 +91,16 @@ To search and play from Apple Music catalog (not just your library), configure M
    - Download the private key (`.p8` file)
    - Note your Key ID and Team ID
 
-2. Set environment variables:
+2. Create config file:
 
 ```bash
-export APPLE_MUSIC_KEY_ID="your-key-id"
-export APPLE_MUSIC_TEAM_ID="your-team-id"
-export APPLE_MUSIC_KEY_PATH="~/.config/xlg/AuthKey.p8"
+mkdir -p ~/.config/xlg
+mv ~/Downloads/AuthKey_*.p8 ~/.config/xlg/AuthKey.p8
+cat > ~/.config/xlg/config << 'EOF'
+APPLE_MUSIC_KEY_ID=your-key-id
+APPLE_MUSIC_TEAM_ID=your-team-id
+APPLE_MUSIC_KEY_PATH=~/.config/xlg/AuthKey.p8
+EOF
 ```
 
 Without these, `play` searches your local library only.
