@@ -81,12 +81,8 @@ def test_cmd_play_musickit_searches_catalog(mocker):
 
 def test_cmd_play_falls_back_to_applescript(mocker):
     """Test play falls back to AppleScript when MusicKit not configured."""
-    mocker.patch.dict('os.environ', {
-        'APPLE_MUSIC_KEY_ID': '',
-        'APPLE_MUSIC_TEAM_ID': '',
-        'APPLE_MUSIC_PRIVATE_KEY': '',
-        'APPLE_MUSIC_KEY_PATH': '',
-    })
+    mocker.patch('xlg.config.load_config', return_value={})
+    mocker.patch.dict('os.environ', {}, clear=True)
 
     mock_run = mocker.patch('subprocess.run')
     mock_run.return_value.returncode = 0

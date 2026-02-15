@@ -1,5 +1,6 @@
 """Sink commands that consume pipelines."""
 
+import os
 import sqlite3
 import subprocess
 from collections.abc import Generator
