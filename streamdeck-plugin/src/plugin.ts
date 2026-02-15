@@ -57,7 +57,8 @@ class XlgPlugin {
       'skip': 'skip',
       'previous': 'previous',
       'volume-up': 'volume +10',
-      'volume-down': 'volume -10'
+      'volume-down': 'volume -10',
+      'favorite': 'favorite'
     };
     const socketCmd = commandMap[cmd];
     if (socketCmd) this.sendToPlayer(socketCmd);

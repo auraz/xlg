@@ -46,6 +46,13 @@
       "Icon": "imgs/volume-down",
       "Tooltip": "Decrease volume by 10%",
       "States": [{"Image": "imgs/volume-down"}]
+    },
+    {
+      "UUID": "com.xlg.player.favorite",
+      "Name": "Favorite",
+      "Icon": "imgs/favorite",
+      "Tooltip": "Love current track",
+      "States": [{"Image": "imgs/favorite"}]
     }
   ]
 }
