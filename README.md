@@ -26,6 +26,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 **Sources:** `fetch`, `read`, `reddit`, `hn`, `museum`, `github`, `wiki`
 **Transforms:** `parse` (json, csv, rss), `get`, `filter`, `sort`, `take`, `summarize`
 **Sinks:** `print`, `write`, `store`, `play`, `open`
+**Controls:** `pause`, `resume`, `toggle`, `skip`, `previous`, `volume`, `status`
 
 ## Examples
 
@@ -126,6 +127,37 @@ xlg 'play "80s rock playlist"'            # playlist (include "playlist" in quer
 ```
 
 **Audio Quality:** Uses your System Settings → Music → Audio Quality settings (Lossless/Hi-Res if enabled).
+
+**Playback Controls:**
+
+```bash
+xlg pause            # pause playback
+xlg resume           # resume playback
+xlg toggle           # toggle play/pause
+xlg skip             # next track
+xlg previous         # previous track
+xlg 'volume 50'      # set volume to 50%
+xlg 'volume +10'     # increase volume by 10%
+xlg 'volume -10'     # decrease volume by 10%
+xlg status           # get JSON status
+```
+
+## Stream Deck Plugin
+
+Control XLG player from Elgato Stream Deck.
+
+**Install:**
+
+```bash
+cd streamdeck-plugin
+npm install
+npm run build
+npm run install-plugin
+```
+
+Restart Stream Deck app, find "XLG Player" in Music category.
+
+**Actions:** Play/Pause (shows track title), Next, Previous, Volume Up, Volume Down.
 
 ## Development
 

@@ -8,6 +8,7 @@ let socketPath = "/tmp/xlg-player.sock"
 struct XlgPlayer {
     @MainActor static var socketSource: DispatchSourceRead?
     @MainActor static var clientSources: [Int32: DispatchSourceRead] = [:]
+    nonisolated(unsafe) static var player = ApplicationMusicPlayer.shared
 
     static func main() {
         let args = CommandLine.arguments
@@ -41,9 +42,8 @@ struct XlgPlayer {
         app.run()
     }
 
-    static func playContent(isPlaylist: Bool, ids: [String]) async {
+    @MainActor static func playContent(isPlaylist: Bool, ids: [String]) async {
         do {
-            let player = ApplicationMusicPlayer.shared
             if isPlaylist {
                 let request = MusicCatalogResourceRequest<Playlist>(matching: \.id, equalTo: MusicItemID(ids[0]))
                 let response = try await request.response()
@@ -133,13 +133,90 @@ struct XlgPlayer {
         let parts = message.components(separatedBy: " ")
         guard !parts.isEmpty else { return }
 
-        let isPlaylist = parts[0] == "--playlist"
-        let ids = isPlaylist ? Array(parts.dropFirst()) : parts
-
         Task { @MainActor in
-            await playContent(isPlaylist: isPlaylist, ids: ids)
-            let response = "OK\n"
+            let response = await handleCommand(parts: parts)
             _ = response.withCString { write(clientFd, $0, strlen($0)) }
         }
+    }
+
+    @MainActor static func handleCommand(parts: [String]) async -> String {
+        let cmd = parts[0].lowercased()
+        switch cmd {
+        case "pause":
+            player.pause()
+            return "OK\n"
+        case "resume", "play":
+            try? await player.play()
+            return "OK\n"
+        case "toggle":
+            if player.state.playbackStatus == .playing {
+                player.pause()
+            } else {
+                try? await player.play()
+            }
+            return "OK\n"
+        case "skip", "next":
+            try? await player.skipToNextEntry()
+            return "OK\n"
+        case "previous", "prev":
+            try? await player.skipToPreviousEntry()
+            return "OK\n"
+        case "volume":
+            if parts.count > 1 {
+                let arg = parts[1]
+                setSystemVolume(arg)
+            }
+            return "OK\n"
+        case "status":
+            return getStatusJson() + "\n"
+        case "--playlist":
+            let ids = Array(parts.dropFirst())
+            await playContent(isPlaylist: true, ids: ids)
+            return "OK\n"
+        default:
+            await playContent(isPlaylist: false, ids: parts)
+            return "OK\n"
+        }
+    }
+
+    @MainActor static func getStatusJson() -> String {
+        let isPlaying = player.state.playbackStatus == .playing
+        let volume = getSystemVolume()
+        var title = ""
+        var artist = ""
+        if let entry = player.queue.currentEntry, case .song(let song) = entry.item {
+            title = song.title
+            artist = song.artistName
+        }
+        let escaped = { (s: String) -> String in
+            s.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+        }
+        return "{\"playing\":\(isPlaying),\"title\":\"\(escaped(title))\",\"artist\":\"\(escaped(artist))\",\"volume\":\(volume)}"
+    }
+
+    static func getSystemVolume() -> Int {
+        let script = "output volume of (get volume settings)"
+        guard let appleScript = NSAppleScript(source: script) else { return 50 }
+        var error: NSDictionary?
+        let result = appleScript.executeAndReturnError(&error)
+        return result.int32Value > 0 ? Int(result.int32Value) : 50
+    }
+
+    static func setSystemVolume(_ arg: String) {
+        var script: String
+        if arg.hasPrefix("+") {
+            let delta = Int(arg.dropFirst()) ?? 10
+            script = "set volume output volume ((output volume of (get volume settings)) + \(delta))"
+        } else if arg.hasPrefix("-") {
+            let delta = Int(arg.dropFirst()) ?? 10
+            script = "set volume output volume ((output volume of (get volume settings)) - \(delta))"
+        } else if let val = Int(arg) {
+            script = "set volume output volume \(min(100, max(0, val)))"
+        } else {
+            return
+        }
+        guard let appleScript = NSAppleScript(source: script) else { return }
+        var error: NSDictionary?
+        appleScript.executeAndReturnError(&error)
     }
 }

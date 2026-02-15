@@ -6,7 +6,7 @@ from xlg.parser import Pipeline
 from xlg.commands.sources import cmd_read, cmd_fetch
 from xlg.commands.discovery import cmd_reddit, cmd_hn, cmd_museum, cmd_github, cmd_wiki
 from xlg.commands.transforms import cmd_parse, cmd_get, cmd_filter, cmd_take, cmd_sort, cmd_summarize
-from xlg.commands.sinks import cmd_open, cmd_play, cmd_print, cmd_store, cmd_write
+from xlg.commands.sinks import cmd_open, cmd_pause, cmd_play, cmd_previous, cmd_print, cmd_resume, cmd_skip, cmd_status, cmd_store, cmd_toggle, cmd_volume, cmd_write
 
 
 def evaluate(ast: Pipeline, source: Generator | None = None) -> Any:
@@ -48,6 +48,20 @@ def evaluate(ast: Pipeline, source: Generator | None = None) -> Any:
             return cmd_store(stream, args[0])
         elif name == "play":
             return cmd_play(args[0])
+        elif name == "pause":
+            return cmd_pause()
+        elif name == "resume":
+            return cmd_resume()
+        elif name == "toggle":
+            return cmd_toggle()
+        elif name == "skip":
+            return cmd_skip()
+        elif name == "previous":
+            return cmd_previous()
+        elif name == "volume":
+            return cmd_volume(args[0])
+        elif name == "status":
+            return cmd_status()
         elif name == "open":
             return cmd_open(stream)
         else:

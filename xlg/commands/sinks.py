@@ -12,18 +12,54 @@ from applemusicpy import AppleMusic
 PLAYER_SOCKET = "/tmp/xlg-player.sock"
 
 
-def send_to_player(command: str) -> bool:
-    """Send command to running player via Unix socket."""
+def send_to_player(command: str) -> str:
+    """Send command to running player via Unix socket, return response."""
     try:
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         sock.settimeout(1.0)
         sock.connect(PLAYER_SOCKET)
         sock.sendall(command.encode())
-        response = sock.recv(64).decode().strip()
+        response = sock.recv(1024).decode().strip()
         sock.close()
-        return response == "OK"
+        return response
     except (socket.error, OSError):
-        return False
+        return ""
+
+
+def cmd_pause() -> str:
+    """Pause playback."""
+    return "Paused" if send_to_player("pause") == "OK" else "Player not running"
+
+
+def cmd_resume() -> str:
+    """Resume playback."""
+    return "Resumed" if send_to_player("resume") == "OK" else "Player not running"
+
+
+def cmd_toggle() -> str:
+    """Toggle play/pause."""
+    return "Toggled" if send_to_player("toggle") == "OK" else "Player not running"
+
+
+def cmd_skip() -> str:
+    """Skip to next track."""
+    return "Skipped" if send_to_player("skip") == "OK" else "Player not running"
+
+
+def cmd_previous() -> str:
+    """Go to previous track."""
+    return "Previous" if send_to_player("previous") == "OK" else "Player not running"
+
+
+def cmd_volume(level: str) -> str:
+    """Set or adjust volume (0-100, +10, -10)."""
+    return f"Volume: {level}" if send_to_player(f"volume {level}") == "OK" else "Player not running"
+
+
+def cmd_status() -> str:
+    """Get player status as JSON."""
+    response = send_to_player("status")
+    return response if response else '{"error":"Player not running"}'
 
 
 def cmd_print(upstream: Generator[Any, None, None]) -> list[Any]:
@@ -92,7 +128,7 @@ def cmd_play(query: str) -> str:
             playlist_id = playlist['id']
             playlist_name = playlist['attributes']['name']
             if player_app.exists():
-                if send_to_player(f"--playlist {playlist_id}"):
+                if send_to_player(f"--playlist {playlist_id}") == "OK":
                     return f"Playing playlist: {playlist_name}"
                 subprocess.Popen([str(player_app), '--playlist', playlist_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 return f"Playing playlist: {playlist_name}"
@@ -107,7 +143,7 @@ def cmd_play(query: str) -> str:
         song_id = song['id']
         song_name = song['attributes']['name']
         if player_app.exists():
-            if send_to_player(song_id):
+            if send_to_player(song_id) == "OK":
                 return f"Playing: {song_name}"
             subprocess.Popen([str(player_app), song_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             return f"Playing: {song_name}"
