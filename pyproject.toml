@@ -19,6 +19,9 @@ package = true
 [tool.setuptools.packages.find]
 include = ["xlg*"]
 
+[tool.setuptools.package-data]
+xlg = ["auth.html"]
+
 [tool.ruff]
 line-length = 170
 
