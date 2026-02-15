@@ -80,11 +80,12 @@ def cmd_play(query: str) -> str:
             )
             headers = {"Authorization": f"Bearer {dev_token}", "Music-User-Token": user_token}
             httpx.post("https://api.music.apple.com/v1/me/library", params={"ids[songs]": song_id}, headers=headers)
-            time.sleep(1)
-            script = f'tell application "Music" to play (first track of library playlist 1 whose name is "{song_name}")'
-            result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
-            if result.returncode == 0:
-                return f"Playing: {song_name}"
+            for _ in range(5):
+                time.sleep(1)
+                script = f'tell application "Music" to play (first track of library playlist 1 whose name is "{song_name}")'
+                result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
+                if result.returncode == 0:
+                    return f"Playing: {song_name}"
 
         subprocess.run(["open", f"music://music.apple.com/us/song/{song_id}"])
         return f"Opening: {song_name} (click to play)"
