@@ -65,7 +65,9 @@ def cmd_play(query: str) -> str:
         is_playlist = 'playlist' in query.lower()
 
         if is_playlist:
-            results = am.search(query, types=['playlists'], limit=1)
+            import re
+            search_query = re.sub(r'\bplaylist\b', '', query, flags=re.IGNORECASE).strip()
+            results = am.search(search_query, types=['playlists'], limit=1)
             playlists = results.get('results', {}).get('playlists', {}).get('data', [])
             if not playlists:
                 raise RuntimeError(f"No playlists found for: {query}")
