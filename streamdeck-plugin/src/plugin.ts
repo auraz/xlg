@@ -1,4 +1,5 @@
 import * as net from 'net';
+import WebSocket from 'ws';
 
 const SOCKET_PATH = '/tmp/xlg-player.sock';
 
@@ -27,9 +28,9 @@ class XlgPlugin {
 
   private connect(): void {
     this.ws = new WebSocket(`ws://127.0.0.1:${this.port}`);
-    this.ws.onopen = () => this.register();
-    this.ws.onmessage = (event) => this.handleMessage(JSON.parse(event.data as string));
-    this.ws.onclose = () => setTimeout(() => this.connect(), 1000);
+    this.ws.on('open', () => this.register());
+    this.ws.on('message', (data) => this.handleMessage(JSON.parse(data.toString())));
+    this.ws.on('close', () => setTimeout(() => this.connect(), 1000));
   }
 
   private register(): void {

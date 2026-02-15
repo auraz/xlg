@@ -6,10 +6,11 @@
   "SDKVersion": 2,
   "OS": [{"Platform": "mac", "MinimumVersion": "10.15"}],
   "Software": {"MinimumVersion": "6.0"},
-  "Category": "Music",
+  "Category": "XLG Controls",
   "CategoryIcon": "imgs/category",
   "Icon": "imgs/plugin",
   "CodePath": "bin/plugin.js",
+  "Nodejs": {"Version": "20", "Debug": "enabled"},
   "Actions": [
     {
       "UUID": "com.xlg.player.toggle",

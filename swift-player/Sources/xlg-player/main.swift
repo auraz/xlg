@@ -143,23 +143,19 @@ struct XlgPlayer {
         let cmd = parts[0].lowercased()
         switch cmd {
         case "pause":
-            player.pause()
+            runAppleScript("tell application \"Music\" to pause")
             return "OK\n"
         case "resume", "play":
-            try? await player.play()
+            runAppleScript("tell application \"Music\" to play")
             return "OK\n"
         case "toggle":
-            if player.state.playbackStatus == .playing {
-                player.pause()
-            } else {
-                try? await player.play()
-            }
+            runAppleScript("tell application \"Music\" to playpause")
             return "OK\n"
         case "skip", "next":
-            try? await player.skipToNextEntry()
+            runAppleScript("tell application \"Music\" to next track")
             return "OK\n"
         case "previous", "prev":
-            try? await player.skipToPreviousEntry()
+            runAppleScript("tell application \"Music\" to previous track")
             return "OK\n"
         case "volume":
             if parts.count > 1 {
@@ -179,14 +175,31 @@ struct XlgPlayer {
         }
     }
 
+    static func runAppleScript(_ script: String) {
+        guard let appleScript = NSAppleScript(source: script) else { return }
+        var error: NSDictionary?
+        appleScript.executeAndReturnError(&error)
+    }
+
     @MainActor static func getStatusJson() -> String {
-        let isPlaying = player.state.playbackStatus == .playing
         let volume = getSystemVolume()
+        var isPlaying = false
         var title = ""
         var artist = ""
-        if let entry = player.queue.currentEntry, case .song(let song) = entry.item {
-            title = song.title
-            artist = song.artistName
+        let stateScript = "tell application \"Music\" to return player state as string"
+        if let script = NSAppleScript(source: stateScript) {
+            var error: NSDictionary?
+            let result = script.executeAndReturnError(&error)
+            if error == nil, result.stringValue == "playing" { isPlaying = true }
+        }
+        let trackScript = "tell application \"Music\" to get {name of current track, artist of current track}"
+        if let script = NSAppleScript(source: trackScript) {
+            var error: NSDictionary?
+            let result = script.executeAndReturnError(&error)
+            if error == nil, let list = result.coerce(toDescriptorType: typeAEList) {
+                if let titleDesc = list.atIndex(1) { title = titleDesc.stringValue ?? "" }
+                if let artistDesc = list.atIndex(2) { artist = artistDesc.stringValue ?? "" }
+            }
         }
         let escaped = { (s: String) -> String in
             s.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
