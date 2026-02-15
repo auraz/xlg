@@ -42,8 +42,11 @@ xlg 'fetch "api/data" | parse json | get "items" | take 10 | print'
 # Summarize text
 xlg 'read "article.txt" | summarize | print'
 
-# Play music (macOS) - searches Apple Music catalog, auto-plays
-xlg 'play "Beatles"'
+# Play song (macOS) - searches Apple Music catalog, auto-plays
+xlg 'play "Beatles Yesterday"'
+
+# Play playlist - include "playlist" in query
+xlg 'play "dio essentials playlist"'
 
 # Open URLs in browser
 xlg 'fetch "api/links" | parse json | get "items" | open'
@@ -105,18 +108,24 @@ EOF
 3. Install native player (macOS 14+):
 
 ```bash
-cd swift-player && swift build -c release
-mkdir -p ~/Applications
+cd swift-player
+swift build -c release
+mkdir -p XlgPlayer.app/Contents/MacOS
+cp .build/release/xlg-player XlgPlayer.app/Contents/MacOS/
+codesign --force --sign - XlgPlayer.app  # or use your Developer ID
 cp -r XlgPlayer.app ~/Applications/
 ```
 
 On first run, grant MusicKit authorization when prompted.
 
-Now `play` searches Apple Music catalog and auto-plays:
+**Usage:**
 
 ```bash
-xlg 'play "Daft Punk Around the World"'
+xlg 'play "Daft Punk Around the World"'  # song
+xlg 'play "80s rock playlist"'            # playlist (include "playlist" in query)
 ```
+
+**Audio Quality:** Uses your System Settings → Music → Audio Quality settings (Lossless/Hi-Res if enabled).
 
 ## Development
 
