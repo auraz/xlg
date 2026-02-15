@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>XLG - Apple Music Authorization</title>
+    <style>
+        body { font-family: system-ui; background: #1a1a2e; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { text-align: center; padding: 40px; }
+        h1 { color: #00d4ff; }
+        button { background: #00d4ff; color: #000; border: none; padding: 15px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; margin: 10px; }
+        button:hover { background: #00b8e6; }
+        .status { margin-top: 20px; padding: 15px; border-radius: 8px; }
+        .success { background: #1a4d1a; }
+        .error { background: #4d1a1a; }
+        code { background: #2a2a3a; padding: 10px; display: block; margin: 10px 0; border-radius: 4px; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>XLG Apple Music Auth</h1>
+        <p>Click to authorize XLG to access Apple Music</p>
+        <button id="authorize">Authorize</button>
+        <div id="status"></div>
+    </div>
+    <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"></script>
+    <script>
+        const DEVELOPER_TOKEN = '{{DEVELOPER_TOKEN}}';
+
+        document.addEventListener('musickitloaded', async () => {
+            try {
+                await MusicKit.configure({
+                    developerToken: DEVELOPER_TOKEN,
+                    app: { name: 'XLG', build: '1.0.0' }
+                });
+
+                document.getElementById('authorize').addEventListener('click', async () => {
+                    try {
+                        const music = MusicKit.getInstance();
+                        await music.authorize();
+                        const userToken = music.musicUserToken;
+
+                        // Send token to local server
+                        const response = await fetch('/token', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ token: userToken })
+                        });
+
+                        if (response.ok) {
+                            document.getElementById('status').innerHTML = '<div class="status success">Success! Token saved. You can close this window.</div>';
+                        } else {
+                            throw new Error('Failed to save token');
+                        }
+                    } catch (err) {
+                        document.getElementById('status').innerHTML = '<div class="status error">Error: ' + err.message + '</div>';
+                    }
+                });
+            } catch (err) {
+                document.getElementById('status').innerHTML = '<div class="status error">Failed to initialize MusicKit: ' + err.message + '</div>';
+            }
+        });
+    </script>
+</body>
+</html>

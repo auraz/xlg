@@ -57,6 +57,11 @@ def test_cmd_open(mocker):
 
 def test_cmd_play_musickit_searches_catalog(mocker):
     """Test play uses MusicKit API when credentials available."""
+    mocker.patch('xlg.config.load_config', return_value={
+        'APPLE_MUSIC_KEY_ID': 'test-key-id',
+        'APPLE_MUSIC_TEAM_ID': 'test-team-id',
+        'APPLE_MUSIC_KEY_PATH': '',
+    })
     mocker.patch.dict('os.environ', {
         'APPLE_MUSIC_KEY_ID': 'test-key-id',
         'APPLE_MUSIC_TEAM_ID': 'test-team-id',
@@ -64,7 +69,7 @@ def test_cmd_play_musickit_searches_catalog(mocker):
     })
     mock_am = mocker.MagicMock()
     mock_am.search.return_value = {
-        'results': {'songs': {'data': [{'id': '123456789'}]}}
+        'results': {'songs': {'data': [{'id': '123456789', 'attributes': {'name': 'Test Song'}}]}}
     }
     mocker.patch('xlg.commands.sinks.AppleMusic', return_value=mock_am)
     mock_open = mocker.patch('subprocess.run')
@@ -76,7 +81,7 @@ def test_cmd_play_musickit_searches_catalog(mocker):
     mock_open.assert_called_once()
     assert 'music://music.apple.com' in mock_open.call_args[0][0][1]
     assert '123456789' in mock_open.call_args[0][0][1]
-    assert 'Playing' in result
+    assert 'Test Song' in result
 
 
 def test_cmd_play_falls_back_to_applescript(mocker):
