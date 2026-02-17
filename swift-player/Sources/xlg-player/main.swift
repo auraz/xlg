@@ -44,7 +44,8 @@ struct XlgPlayer {
 
     @MainActor static func playContent(isPlaylist: Bool, ids: [String]) async {
         if isPlaylist {
-            player.queue = ApplicationMusicPlayer.Queue(for: [] as [Song]) // Clear MusicKit queue
+            player.pause() // Stop MusicKit
+            player.queue = ApplicationMusicPlayer.Queue(for: [] as [Song])
             let urlStr = "music://music.apple.com/us/playlist/\(ids[0])"
             if let url = URL(string: urlStr) {
                 NSWorkspace.shared.open(url)
@@ -52,6 +53,7 @@ struct XlgPlayer {
                 runAppleScript("tell application \"Music\" to play")
             }
         } else {
+            runAppleScript("tell application \"Music\" to pause") // Stop Music.app
             do {
                 var songs: [Song] = []
                 for id in ids {
