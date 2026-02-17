@@ -18,3 +18,10 @@ swift-player/XlgPlayer.app/Contents/embedded.provisionprofile
 
 # Local
 .claude/
+XlgPlayer/
+test_shell.sh
+
+# Swift extras
+swift-player/XlgPlayer*.app/
+swift-player/*.sh
+swift-player/*.entitlements
