@@ -44,21 +44,21 @@ struct XlgPlayer {
 
     @MainActor static func playContent(isPlaylist: Bool, ids: [String]) async {
         if isPlaylist {
-            player.pause() // Stop MusicKit
+            player.pause()
             player.queue = ApplicationMusicPlayer.Queue(for: [] as [Song])
             let urlStr = "music://music.apple.com/us/playlist/\(ids[0])"
             if let url = URL(string: urlStr) {
                 NSWorkspace.shared.open(url)
-                try? await Task.sleep(nanoseconds: 500_000_000)
+                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2s delay
                 runAppleScript("tell application \"Music\" to play")
             }
         } else {
-            player.pause() // Stop MusicKit
+            player.pause()
             player.queue = ApplicationMusicPlayer.Queue(for: [] as [Song])
             let urlStr = "music://music.apple.com/us/song/\(ids[0])"
             if let url = URL(string: urlStr) {
                 NSWorkspace.shared.open(url)
-                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1s delay
+                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2s delay
                 runAppleScript("tell application \"Music\" to play")
             }
         }
