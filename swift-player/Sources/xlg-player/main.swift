@@ -43,11 +43,28 @@ struct XlgPlayer {
     }
 
     @MainActor static func playContent(isPlaylist: Bool, ids: [String]) async {
-        let urlStr = isPlaylist ? "music://music.apple.com/playlist/\(ids[0])" : "music://music.apple.com/song/\(ids[0])"
-        if let url = URL(string: urlStr) {
-            NSWorkspace.shared.open(url)
-            try? await Task.sleep(nanoseconds: 500_000_000) // Wait 0.5s for Music.app to load
-            runAppleScript("tell application \"Music\" to play")
+        if isPlaylist {
+            player.queue = ApplicationMusicPlayer.Queue(for: [] as [Song]) // Clear MusicKit queue
+            let urlStr = "music://music.apple.com/us/playlist/\(ids[0])"
+            if let url = URL(string: urlStr) {
+                NSWorkspace.shared.open(url)
+                try? await Task.sleep(nanoseconds: 500_000_000)
+                runAppleScript("tell application \"Music\" to play")
+            }
+        } else {
+            do {
+                var songs: [Song] = []
+                for id in ids {
+                    let request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: MusicItemID(id))
+                    let response = try await request.response()
+                    if let song = response.items.first { songs.append(song) }
+                }
+                guard !songs.isEmpty else { return }
+                player.queue = ApplicationMusicPlayer.Queue(for: songs)
+                try await player.play()
+            } catch {
+                print("Error: \(error)")
+            }
         }
     }
 
@@ -118,21 +135,24 @@ struct XlgPlayer {
 
     @MainActor static func handleCommand(parts: [String]) async -> String {
         let cmd = parts[0].lowercased()
+        let usingMusicKit = player.state.playbackStatus == .playing || player.state.playbackStatus == .paused
         switch cmd {
         case "pause":
-            runAppleScript("tell application \"Music\" to pause")
+            if usingMusicKit { player.pause() } else { runAppleScript("tell application \"Music\" to pause") }
             return "OK\n"
         case "resume", "play":
-            runAppleScript("tell application \"Music\" to play")
+            if usingMusicKit { try? await player.play() } else { runAppleScript("tell application \"Music\" to play") }
             return "OK\n"
         case "toggle":
-            runAppleScript("tell application \"Music\" to playpause")
+            if usingMusicKit {
+                if player.state.playbackStatus == .playing { player.pause() } else { try? await player.play() }
+            } else { runAppleScript("tell application \"Music\" to playpause") }
             return "OK\n"
         case "skip", "next":
-            runAppleScript("tell application \"Music\" to next track")
+            if usingMusicKit { try? await player.skipToNextEntry() } else { runAppleScript("tell application \"Music\" to next track") }
             return "OK\n"
         case "previous", "prev":
-            runAppleScript("tell application \"Music\" to previous track")
+            if usingMusicKit { try? await player.skipToPreviousEntry() } else { runAppleScript("tell application \"Music\" to previous track") }
             return "OK\n"
         case "favorite", "love":
             runAppleScript("tell application \"Music\"\nset f to favorited of current track\nset favorited of current track to not f\nend tell")
@@ -166,19 +186,34 @@ struct XlgPlayer {
         var isPlaying = false
         var title = ""
         var artist = ""
-        if let script = NSAppleScript(source: "tell application \"Music\" to return player state as string") {
-            var error: NSDictionary?
-            let result = script.executeAndReturnError(&error)
-            if error == nil, result.stringValue == "playing" { isPlaying = true }
-        }
-        if let script = NSAppleScript(source: "tell application \"Music\" to get {name of current track, artist of current track}") {
-            var error: NSDictionary?
-            let result = script.executeAndReturnError(&error)
-            if error == nil, let list = result.coerce(toDescriptorType: typeAEList) {
-                if let t = list.atIndex(1) { title = t.stringValue ?? "" }
-                if let a = list.atIndex(2) { artist = a.stringValue ?? "" }
+
+        // Check MusicKit player first (playing or paused with content)
+        let mkStatus = player.state.playbackStatus
+        if mkStatus == .playing || mkStatus == .paused {
+            if let entry = player.queue.currentEntry, case .song(let song) = entry.item {
+                isPlaying = mkStatus == .playing
+                title = song.title
+                artist = song.artistName
             }
         }
+
+        // Fall back to Music.app if MusicKit has no content
+        if title.isEmpty {
+            if let script = NSAppleScript(source: "tell application \"Music\" to return player state as string") {
+                var error: NSDictionary?
+                let result = script.executeAndReturnError(&error)
+                if error == nil, result.stringValue == "playing" { isPlaying = true }
+            }
+            if let script = NSAppleScript(source: "tell application \"Music\" to get {name of current track, artist of current track}") {
+                var error: NSDictionary?
+                let result = script.executeAndReturnError(&error)
+                if error == nil, let list = result.coerce(toDescriptorType: typeAEList) {
+                    if let t = list.atIndex(1) { title = t.stringValue ?? "" }
+                    if let a = list.atIndex(2) { artist = a.stringValue ?? "" }
+                }
+            }
+        }
+
         let escaped = { (s: String) -> String in
             s.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
         }
