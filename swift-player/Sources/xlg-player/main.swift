@@ -53,19 +53,13 @@ struct XlgPlayer {
                 runAppleScript("tell application \"Music\" to play")
             }
         } else {
-            runAppleScript("tell application \"Music\" to pause") // Stop Music.app
-            do {
-                var songs: [Song] = []
-                for id in ids {
-                    let request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: MusicItemID(id))
-                    let response = try await request.response()
-                    if let song = response.items.first { songs.append(song) }
-                }
-                guard !songs.isEmpty else { return }
-                player.queue = ApplicationMusicPlayer.Queue(for: songs)
-                try await player.play()
-            } catch {
-                print("Error: \(error)")
+            player.pause() // Stop MusicKit
+            player.queue = ApplicationMusicPlayer.Queue(for: [] as [Song])
+            let urlStr = "music://music.apple.com/us/song/\(ids[0])"
+            if let url = URL(string: urlStr) {
+                NSWorkspace.shared.open(url)
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1s delay
+                runAppleScript("tell application \"Music\" to play")
             }
         }
     }
