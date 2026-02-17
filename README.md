@@ -126,6 +126,8 @@ cp -r XlgPlayer.app ~/Applications/
 
 On first run, grant MusicKit authorization when prompted.
 
+**How it works:** The native player uses MusicKit to search Apple Music catalog, queue content, and control playback. Songs and playlists play through MusicKit's `ApplicationMusicPlayer` for seamless switching.
+
 **Usage:**
 
 ```bash
@@ -197,17 +199,17 @@ Restart Stream Deck app, find **"XLG Controls"** category in the right sidebar.
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
 │ Stream Deck │────▶│ XLG Player  │────▶│  MusicKit   │
-│   Plugin    │     │   (Swift)   │     │  / Music    │
+│   Plugin    │     │   (Swift)   │     │   Player    │
 └─────────────┘     └─────────────┘     └─────────────┘
-       │                   │
-       │   Unix Socket     │   AppleScript
-       │  /tmp/xlg-player  │   (playlists)
-       │       .sock       │
-       ▼                   ▼
-┌─────────────┐     ┌─────────────┐
-│   XLG CLI   │     │  Volume /   │
-│  (Python)   │     │   Status    │
-└─────────────┘     └─────────────┘
+       │                   │                   │
+       │   Unix Socket     │                   │
+       │  /tmp/xlg-player  │                   ▼
+       │       .sock       │            ┌─────────────┐
+       ▼                   │            │ Apple Music │
+┌─────────────┐            │            │  Catalog    │
+│   XLG CLI   │────────────┘            └─────────────┘
+│  (Python)   │
+└─────────────┘
 ```
 
 ## Development
