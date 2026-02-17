@@ -14,6 +14,13 @@ uv tool install xlg
 xlg 'fetch "api/users" | parse json | print'
 ```
 
+```
+┌───────────┐    ┌───────────┐    ┌───────────┐
+│   fetch   │───▶│   parse   │───▶│   print   │
+│  (source) │    │(transform)│    │   (sink)  │
+└───────────┘    └───────────┘    └───────────┘
+```
+
 Or interactive REPL:
 
 ```bash
@@ -130,6 +137,13 @@ xlg 'play "80s rock playlist"'            # playlist (include "playlist" in quer
 
 **Playback Controls:**
 
+```
+   advancement          playback           volume
+ ◀◀ previous          ⏸️ pause           🔊 volume 50
+ ▶▶ skip              ▶️ resume          🔊 volume +10
+                      ⏯️ toggle          🔉 volume -10
+```
+
 ```bash
 xlg pause            # pause playback
 xlg resume           # resume playback
@@ -140,11 +154,21 @@ xlg 'volume 50'      # set volume to 50%
 xlg 'volume +10'     # increase volume by 10%
 xlg 'volume -10'     # decrease volume by 10%
 xlg status           # get JSON status
+xlg favorite         # toggle love on current track
 ```
 
 ## Stream Deck Plugin
 
 Control Apple Music from Elgato Stream Deck.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Stream Deck Layout                       │
+├──────────┬──────────┬──────────┬──────────┬──────────┬──────┤
+│    ⏮️    │   ⏯️    │    ⏭️    │    🔉    │    🔊    │  ❤️  │
+│ Previous │  Toggle  │   Next   │  Vol -   │  Vol +   │ Love │
+└──────────┴──────────┴──────────┴──────────┴──────────┴──────┘
+```
 
 **Install:**
 
@@ -158,12 +182,33 @@ cp -r com.xlg.player.sdPlugin ~/Library/Application\ Support/com.elgato.StreamDe
 Restart Stream Deck app, find **"XLG Controls"** category in the right sidebar.
 
 **Actions:**
-- **Play/Pause** - Toggle playback, shows current track title
-- **Next** - Skip to next track
-- **Previous** - Go to previous track
-- **Volume Up** - Increase volume by 10%
-- **Volume Down** - Decrease volume by 10%
-- **Favorite** - Toggle loved status of current track
+
+| Button | Icon | Action | Notes |
+|--------|------|--------|-------|
+| Play/Pause | ▶️/⏸️ | Toggle playback | Shows track title |
+| Next | ⏭️ | Skip to next | |
+| Previous | ⏮️ | Previous track | |
+| Volume Up | 🔊 | +10% volume | System volume |
+| Volume Down | 🔉 | -10% volume | System volume |
+| Favorite | ❤️ | Toggle love | Current track |
+
+**Architecture:**
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│ Stream Deck │────▶│ XLG Player  │────▶│  MusicKit   │
+│   Plugin    │     │   (Swift)   │     │  / Music    │
+└─────────────┘     └─────────────┘     └─────────────┘
+       │                   │
+       │   Unix Socket     │   AppleScript
+       │  /tmp/xlg-player  │   (playlists)
+       │       .sock       │
+       ▼                   ▼
+┌─────────────┐     ┌─────────────┐
+│   XLG CLI   │     │  Volume /   │
+│  (Python)   │     │   Status    │
+└─────────────┘     └─────────────┘
+```
 
 ## Development
 
