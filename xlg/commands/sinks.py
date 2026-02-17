@@ -16,7 +16,7 @@ def send_to_player(command: str) -> str:
     """Send command to running player via Unix socket, return response."""
     try:
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        sock.settimeout(1.0)
+        sock.settimeout(2.0)
         sock.connect(PLAYER_SOCKET)
         sock.sendall(command.encode())
         response = sock.recv(1024).decode().strip()
@@ -24,6 +24,11 @@ def send_to_player(command: str) -> str:
         return response
     except (socket.error, OSError):
         return ""
+
+
+def kill_existing_players() -> None:
+    """Kill any existing xlg-player processes."""
+    subprocess.run(["pkill", "-f", "xlg-player"], stderr=subprocess.DEVNULL)
 
 
 def cmd_pause() -> str:
@@ -130,6 +135,7 @@ def cmd_play(query: str) -> str:
             if player_app.exists():
                 if send_to_player(f"--playlist {playlist_id}") == "OK":
                     return f"Playing playlist: {playlist_name}"
+                kill_existing_players()
                 subprocess.Popen([str(player_app), '--playlist', playlist_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 return f"Playing playlist: {playlist_name}"
             subprocess.run(["open", f"music://music.apple.com/us/playlist/{playlist_id}"])
@@ -145,6 +151,7 @@ def cmd_play(query: str) -> str:
         if player_app.exists():
             if send_to_player(song_id) == "OK":
                 return f"Playing: {song_name}"
+            kill_existing_players()
             subprocess.Popen([str(player_app), song_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             return f"Playing: {song_name}"
         subprocess.run(["open", f"music://music.apple.com/us/song/{song_id}"])
