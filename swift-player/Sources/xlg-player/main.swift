@@ -43,24 +43,27 @@ struct XlgPlayer {
     }
 
     @MainActor static func playContent(isPlaylist: Bool, ids: [String]) async {
-        if isPlaylist {
-            player.pause()
-            player.queue = ApplicationMusicPlayer.Queue(for: [] as [Song])
-            let urlStr = "music://music.apple.com/us/playlist/\(ids[0])"
-            if let url = URL(string: urlStr) {
-                NSWorkspace.shared.open(url)
-                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2s delay
-                runAppleScript("tell application \"Music\" to play")
+        runAppleScript("tell application \"Music\" to pause")
+        do {
+            if isPlaylist {
+                let request = MusicCatalogResourceRequest<Playlist>(matching: \.id, equalTo: MusicItemID(ids[0]))
+                let response = try await request.response()
+                guard let playlist = response.items.first else { return }
+                player.queue = [playlist]
+                try await player.play()
+            } else {
+                var songs: [Song] = []
+                for id in ids {
+                    let request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: MusicItemID(id))
+                    let response = try await request.response()
+                    if let song = response.items.first { songs.append(song) }
+                }
+                guard !songs.isEmpty else { return }
+                player.queue = ApplicationMusicPlayer.Queue(for: songs)
+                try await player.play()
             }
-        } else {
-            player.pause()
-            player.queue = ApplicationMusicPlayer.Queue(for: [] as [Song])
-            let urlStr = "music://music.apple.com/us/song/\(ids[0])"
-            if let url = URL(string: urlStr) {
-                NSWorkspace.shared.open(url)
-                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2s delay
-                runAppleScript("tell application \"Music\" to play")
-            }
+        } catch {
+            print("Error: \(error)")
         }
     }
 
