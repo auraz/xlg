@@ -5,6 +5,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+import anthropic
+
 
 def load_sites(path: Path) -> dict[str, str]:
     """Load site aliases from JSON file."""
@@ -35,3 +37,23 @@ def extract_form_html(html: str) -> str:
     """Extract form elements from HTML, removing noise."""
     forms = re.findall(r"<form[^>]*>.*?</form>", html, re.DOTALL | re.IGNORECASE)
     return "\n".join(forms) if forms else html[:5000]
+
+
+def map_fields_with_claude(client: anthropic.Anthropic, form_html: str, profile: dict[str, Any]) -> dict[str, str]:
+    """Use Claude to map profile data to form fields."""
+    prompt = f"""Analyze this HTML form and map the user's profile data to form fields.
+
+Form HTML:
+{form_html}
+
+User Profile:
+{json.dumps(profile, indent=2)}
+
+Return ONLY a JSON object mapping CSS selectors to values. Example:
+{{"#field-id": "value", "[name='field']": "value"}}
+
+Use the most specific selector available (id > name > other attributes).
+Only include fields that have matching profile data."""
+
+    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=1024, messages=[{"role": "user", "content": prompt}])
+    return json.loads(response.content[0].text)

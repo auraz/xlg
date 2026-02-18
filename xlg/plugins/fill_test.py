@@ -1,6 +1,6 @@
 """Fill plugin tests."""
 
-from xlg.plugins.fill import load_sites, load_profile, resolve_target, extract_form_html
+from xlg.plugins.fill import load_sites, load_profile, resolve_target, extract_form_html, map_fields_with_claude
 
 
 def test_load_sites(tmp_path):
@@ -46,3 +46,12 @@ def test_extract_form_html():
     assert "<form" in form_html
     assert 'name="name"' in form_html
     assert "<header>" not in form_html
+
+
+def test_map_fields_with_claude(mocker):
+    mock_client = mocker.MagicMock()
+    mock_client.messages.create.return_value.content = [mocker.MagicMock(text='{"#name": "John", "#zip": "90210"}')]
+    profile = {"name": "John", "zip": "90210"}
+    form_html = '<form><input id="name"><input id="zip"></form>'
+    mappings = map_fields_with_claude(mock_client, form_html, profile)
+    assert mappings == {"#name": "John", "#zip": "90210"}
