@@ -80,7 +80,10 @@ def test_cmd_fill_integration(tmp_path, mocker):
     mock_browser.new_page.return_value = mock_page
     mock_playwright.return_value.__enter__.return_value.chromium.launch.return_value = mock_browser
     mock_claude = mocker.patch("xlg.plugins.fill.anthropic.Anthropic")
-    mock_claude.return_value.messages.create.return_value.content = [mocker.MagicMock(text='{"#name": "John"}')]
+    analyze_response = mocker.MagicMock(text='[{"selector": "#name", "name": "Name", "type": "text"}]')
+    map_response = mocker.MagicMock(text='{"#name": "John"}')
+    mock_claude.return_value.messages.create.return_value.content = [analyze_response]
+    mock_claude.return_value.messages.create.side_effect = [mocker.MagicMock(content=[analyze_response]), mocker.MagicMock(content=[map_response])]
     mocker.patch("builtins.input", return_value="")
     result = cmd_fill(None, "test")
     assert "filled" in result.lower()
