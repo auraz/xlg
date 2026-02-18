@@ -107,6 +107,50 @@ export OPENAI_API_KEY="your-key"
 
 Music playback uses [xlg-player](../xlg-player). See its README for setup instructions.
 
+## Fill Setup (AI Form Filling)
+
+Automate checkout forms using Claude AI.
+
+1. Set API key:
+
+```bash
+export ANTHROPIC_API_KEY="your-key"
+```
+
+2. Create profile:
+
+```bash
+mkdir -p ~/.config/xlg/data
+cat > ~/.config/xlg/data/profile.json << 'EOF'
+{
+  "name": "Your Name",
+  "address": "123 Main St",
+  "city": "San Francisco",
+  "state": "CA",
+  "zip": "94102"
+}
+EOF
+```
+
+3. Add site aliases:
+
+```bash
+cat > ~/.config/xlg/data/sites.json << 'EOF'
+{
+  "amazon": "https://amazon.com/checkout"
+}
+EOF
+```
+
+4. Usage:
+
+```bash
+xlg 'fill "amazon"'           # fill form using alias
+xlg 'fill "https://..."'      # fill form at URL
+```
+
+Browser opens, Claude analyzes the form, fields are filled. Review and submit manually.
+
 ## Plugin System
 
 XLG supports custom commands via plugins. The `Registry` class stores source, transform, and sink functions.
