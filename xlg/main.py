@@ -36,7 +36,7 @@ def main() -> None:
     """CLI entry point."""
     if len(sys.argv) > 1:
         if sys.argv[1] == "auth":
-            from xlg.auth import run_auth_server
+            from xlg_player.auth import run_auth_server
             run_auth_server()
         else:
             run(sys.argv[1])

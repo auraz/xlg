@@ -647,10 +647,10 @@ name = "xlg"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "apple-music-python" },
     { name = "feedparser" },
     { name = "httpx" },
     { name = "openai" },
+    { name = "xlg-player" },
 ]
 
 [package.dev-dependencies]
@@ -662,10 +662,32 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "apple-music-python", specifier = ">=1.0.6" },
     { name = "feedparser", specifier = ">=6.0.12" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "openai", specifier = ">=2.21.0" },
+    { name = "xlg-player", directory = "../xlg-player" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "pytest-mock", specifier = ">=3.15.1" },
+    { name = "ruff", specifier = ">=0.15.1" },
+]
+
+[[package]]
+name = "xlg-player"
+version = "0.1.0"
+source = { directory = "../xlg-player" }
+dependencies = [
+    { name = "apple-music-python" },
+    { name = "pyjwt" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "apple-music-python", specifier = ">=1.0.6" },
+    { name = "pyjwt", specifier = ">=2.8.0" },
 ]
 
 [package.metadata.requires-dev]

@@ -50,11 +50,21 @@ xlg 'fetch "api/data" | parse json | get "items" | take 10 | print'
 # Summarize text
 xlg 'read "article.txt" | summarize | print'
 
-# Play song (macOS) - searches Apple Music catalog, auto-plays
+# Play song (macOS) - searches Apple Music catalog
 xlg 'play "Beatles Yesterday"'
 
-# Play playlist - include "playlist" in query
-xlg 'play "dio essentials playlist"'
+# Play playlist
+xlg 'play "80s rock playlist"'
+
+# Playback controls
+xlg pause
+xlg resume
+xlg toggle
+xlg skip
+xlg previous
+xlg 'volume 50'
+xlg status
+xlg favorite
 
 # Open URLs in browser
 xlg 'fetch "api/links" | parse json | get "items" | open'
@@ -93,129 +103,14 @@ The `summarize` command uses OpenAI API. Set your API key:
 export OPENAI_API_KEY="your-key"
 ```
 
-## Play Setup (Apple Music Catalog)
+## Play Setup
 
-To search and auto-play from Apple Music catalog:
-
-1. Get credentials from [Apple Developer Portal](https://developer.apple.com/account/resources/authkeys/list):
-   - Keys → + → Enable MusicKit → Download `.p8` file
-   - Note your Key ID and Team ID
-
-2. Create config file:
-
-```bash
-mkdir -p ~/.config/xlg
-mv ~/Downloads/AuthKey_*.p8 ~/.config/xlg/AuthKey.p8
-cat > ~/.config/xlg/config << 'EOF'
-APPLE_MUSIC_KEY_ID=your-key-id
-APPLE_MUSIC_TEAM_ID=your-team-id
-APPLE_MUSIC_KEY_PATH=~/.config/xlg/AuthKey.p8
-EOF
-```
-
-3. Install native player (macOS 14+):
-
-```bash
-cd swift-player
-swift build -c release
-mkdir -p XlgPlayer.app/Contents/MacOS
-cp .build/release/xlg-player XlgPlayer.app/Contents/MacOS/
-codesign --force --sign - XlgPlayer.app  # or use your Developer ID
-cp -r XlgPlayer.app ~/Applications/
-```
-
-On first run, grant MusicKit authorization when prompted.
-
-**How it works:** The native player uses MusicKit to search Apple Music catalog, queue content, and control playback. Songs and playlists play through MusicKit's `ApplicationMusicPlayer` for seamless switching.
-
-**Usage:**
-
-```bash
-xlg 'play "Daft Punk Around the World"'  # song
-xlg 'play "80s rock playlist"'            # playlist (include "playlist" in query)
-```
-
-**Audio Quality:** Uses your System Settings → Music → Audio Quality settings (Lossless/Hi-Res if enabled).
-
-**Playback Controls:**
-
-```
-   advancement          playback           volume
- ◀◀ previous          ⏸️ pause           🔊 volume 50
- ▶▶ skip              ▶️ resume          🔊 volume +10
-                      ⏯️ toggle          🔉 volume -10
-```
-
-```bash
-xlg pause            # pause playback
-xlg resume           # resume playback
-xlg toggle           # toggle play/pause
-xlg skip             # next track
-xlg previous         # previous track
-xlg 'volume 50'      # set volume to 50%
-xlg 'volume +10'     # increase volume by 10%
-xlg 'volume -10'     # decrease volume by 10%
-xlg status           # get JSON status
-xlg favorite         # toggle love on current track
-```
-
-## Stream Deck Plugin
-
-Control Apple Music from Elgato Stream Deck.
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Stream Deck Layout                       │
-├──────────┬──────────┬──────────┬──────────┬──────────┬──────┤
-│    ⏮️    │   ⏯️    │    ⏭️    │    🔉    │    🔊    │  ❤️  │
-│ Previous │  Toggle  │   Next   │  Vol -   │  Vol +   │ Love │
-└──────────┴──────────┴──────────┴──────────┴──────────┴──────┘
-```
-
-**Install:**
-
-```bash
-cd streamdeck-plugin
-npm install
-npm run build
-cp -r com.xlg.player.sdPlugin ~/Library/Application\ Support/com.elgato.StreamDeck/Plugins/
-```
-
-Restart Stream Deck app, find **"XLG Controls"** category in the right sidebar.
-
-**Actions:**
-
-| Button | Icon | Action | Notes |
-|--------|------|--------|-------|
-| Play/Pause | ▶️/⏸️ | Toggle playback | Shows track title |
-| Next | ⏭️ | Skip to next | |
-| Previous | ⏮️ | Previous track | |
-| Volume Up | 🔊 | +10% volume | System volume |
-| Volume Down | 🔉 | -10% volume | System volume |
-| Favorite | ❤️ | Toggle love | Current track |
-
-**Architecture:**
-
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│ Stream Deck │────▶│ XLG Player  │────▶│  MusicKit   │
-│   Plugin    │     │   (Swift)   │     │   Player    │
-└─────────────┘     └─────────────┘     └─────────────┘
-       │                   │                   │
-       │   Unix Socket     │                   │
-       │  /tmp/xlg-player  │                   ▼
-       │       .sock       │            ┌─────────────┐
-       ▼                   │            │ Apple Music │
-┌─────────────┐            │            │  Catalog    │
-│   XLG CLI   │────────────┘            └─────────────┘
-│  (Python)   │
-└─────────────┘
-```
+Music playback uses [xlg-player](../xlg-player). See its README for setup instructions.
 
 ## Development
 
 ```bash
-just test   # run tests (unit + integration)
+just test   # run tests
 just lint   # check code
 just fmt    # format code
 ```
