@@ -1,6 +1,7 @@
 """Fill plugin - AI-powered form filling."""
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -28,3 +29,9 @@ def resolve_target(target: str, sites_path: Path | None) -> str:
         if target in sites:
             return sites[target]
     raise ValueError(f"Unknown site alias: {target}")
+
+
+def extract_form_html(html: str) -> str:
+    """Extract form elements from HTML, removing noise."""
+    forms = re.findall(r"<form[^>]*>.*?</form>", html, re.DOTALL | re.IGNORECASE)
+    return "\n".join(forms) if forms else html[:5000]

@@ -1,6 +1,6 @@
 """Fill plugin tests."""
 
-from xlg.plugins.fill import load_sites, load_profile, resolve_target
+from xlg.plugins.fill import load_sites, load_profile, resolve_target, extract_form_html
 
 
 def test_load_sites(tmp_path):
@@ -27,3 +27,22 @@ def test_resolve_target_alias(tmp_path):
 def test_resolve_target_url():
     url = resolve_target("https://example.com", None)
     assert url == "https://example.com"
+
+
+def test_extract_form_html():
+    html = """
+    <html>
+    <body>
+        <header>Nav</header>
+        <form id="checkout">
+            <input name="name" type="text">
+            <input name="zip" type="text">
+        </form>
+        <footer>Footer</footer>
+    </body>
+    </html>
+    """
+    form_html = extract_form_html(html)
+    assert "<form" in form_html
+    assert 'name="name"' in form_html
+    assert "<header>" not in form_html
