@@ -53,10 +53,15 @@ Return ONLY a JSON array of objects, each with:
 - "name": human-readable field name (e.g., "First Name", "Tracking Number")
 - "type": field type (text, email, phone, select, etc.)
 
-Example: [{{"selector": "#fname", "name": "First Name", "type": "text"}}]"""
+Example: [{{"selector": "#fname", "name": "First Name", "type": "text"}}]
+
+Return ONLY valid JSON, no markdown, no explanation."""
 
     response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=2048, messages=[{"role": "user", "content": prompt}])
-    return json.loads(response.content[0].text)
+    text = response.content[0].text.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+    return json.loads(text)
 
 
 def prompt_missing_fields(fields: list[dict[str, str]], profile: dict[str, Any]) -> dict[str, Any]:
@@ -86,10 +91,14 @@ Return ONLY a JSON object mapping CSS selectors to values. Example:
 {{"#field-id": "value", "[name='field']": "value"}}
 
 Use the most specific selector available (id > name > other attributes).
-Only include fields that have matching profile data."""
+Only include fields that have matching profile data.
+Return ONLY valid JSON, no markdown, no explanation."""
 
     response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=1024, messages=[{"role": "user", "content": prompt}])
-    return json.loads(response.content[0].text)
+    text = response.content[0].text.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+    return json.loads(text)
 
 
 def fill_form_fields(page: Page, mappings: dict[str, str]) -> None:
@@ -108,7 +117,8 @@ def cmd_fill(data: Any, target: str) -> str:
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         page = browser.new_page()
-        page.goto(url)
+        page.goto(url, timeout=60000)
+        page.wait_for_load_state("domcontentloaded")
         html = page.content()
         form_html = extract_form_html(html)
         client = anthropic.Anthropic()
