@@ -1,12 +1,13 @@
 """Fill plugin - AI-powered form filling."""
 
 import json
+import os
 import re
 from pathlib import Path
 from typing import Any
 
 import anthropic
-from playwright.sync_api import Page
+from playwright.sync_api import Page, sync_playwright
 
 
 def load_sites(path: Path) -> dict[str, str]:
@@ -64,3 +65,31 @@ def fill_form_fields(page: Page, mappings: dict[str, str]) -> None:
     """Fill form fields using Playwright."""
     for selector, value in mappings.items():
         page.fill(selector, value)
+
+
+def cmd_fill(data: Any, target: str) -> str:
+    """Fill a web form using AI-assisted field mapping."""
+    config_dir = Path(os.environ.get("XLG_CONFIG_DIR", Path.home() / ".config" / "xlg"))
+    sites_path = config_dir / "data" / "sites.json"
+    profile_path = config_dir / "data" / "profile.json"
+    url = resolve_target(target, sites_path)
+    profile = load_profile(profile_path)
+    if not profile:
+        raise ValueError(f"No profile found at {profile_path}")
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        page = browser.new_page()
+        page.goto(url)
+        html = page.content()
+        form_html = extract_form_html(html)
+        client = anthropic.Anthropic()
+        mappings = map_fields_with_claude(client, form_html, profile)
+        fill_form_fields(page, mappings)
+        input("Form filled. Press Enter to close browser...")
+        browser.close()
+    return f"Filled {len(mappings)} fields"
+
+
+def register(registry: Any) -> None:
+    """Register fill command with XLG."""
+    registry.add_sink("fill", cmd_fill)

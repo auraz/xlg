@@ -32,7 +32,7 @@ xlg> read "data.csv" | parse csv | filter "active" "true" | print
 
 **Sources:** `fetch`, `read`, `reddit`, `hn`, `museum`, `github`, `wiki`
 **Transforms:** `parse` (json, csv, rss), `get`, `filter`, `sort`, `take`, `summarize`
-**Sinks:** `print`, `write`, `store`, `play`, `open`
+**Sinks:** `print`, `write`, `store`, `play`, `open`, `fill`
 **Controls:** `pause`, `resume`, `toggle`, `skip`, `previous`, `volume`, `status`, `favorite`
 
 ## Examples
@@ -122,16 +122,16 @@ registry.add_sink("custom", lambda data, arg: print(data))
 
 ### Fill Plugin
 
-AI-powered form filling plugin with config loading and browser automation:
+AI-powered form filling plugin. Uses Claude to map profile data to form fields and Playwright for browser automation.
 
-```python
-from xlg.plugins.fill import load_sites, load_profile, resolve_target, fill_form_fields
-
-sites = load_sites(Path("~/.xlg/sites.json"))  # {"amazon": "https://..."}
-profile = load_profile(Path("~/.xlg/profile.json"))  # {"name": "John", ...}
-url = resolve_target("amazon", sites_path)  # resolves alias to URL
-fill_form_fields(page, {"#name": "John", "#zip": "90210"})  # fill form via Playwright
+```bash
+xlg 'fill "amazon"'  # fill form using site alias
+xlg 'fill "https://example.com/form"'  # fill form using direct URL
 ```
+
+Config files in `~/.config/xlg/data/`:
+- `sites.json`: Site aliases `{"amazon": "https://..."}`
+- `profile.json`: User data `{"name": "John", "zip": "90210"}`
 
 ## Development
 
