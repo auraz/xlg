@@ -80,6 +80,9 @@ xlg 'museum "met" "monet" | take 5 | open'
 
 # Parse RSS feeds
 xlg 'fetch "https://feed.url/rss" | parse rss | take 3 | open'
+
+# Fill web form (prompts for missing fields)
+xlg 'fill "https://shop.com/checkout"'
 ```
 
 ## Discovery
@@ -109,7 +112,7 @@ Music playback uses [xlg-player](../xlg-player). See its README for setup instru
 
 ## Fill Setup (AI Form Filling)
 
-Automate checkout forms using Claude AI.
+Automate web forms using Claude AI + Playwright.
 
 1. Set API key:
 
@@ -117,65 +120,55 @@ Automate checkout forms using Claude AI.
 export ANTHROPIC_API_KEY="your-key"
 ```
 
-2. Create profile:
+2. Usage:
 
 ```bash
-mkdir -p ~/.config/xlg/data
-cat > ~/.config/xlg/data/profile.json << 'EOF'
-{
-  "name": "Your Name",
-  "address": "123 Main St",
-  "city": "San Francisco",
-  "state": "CA",
-  "zip": "94102"
-}
-EOF
+xlg 'fill "https://example.com/form"'  # fill form at URL
+xlg 'fill "amazon"'                     # fill form using alias
 ```
 
-3. Add site aliases:
+**How it works:**
+1. Opens browser and navigates to URL
+2. Claude analyzes form fields
+3. Prompts you for each field value interactively
+4. Fills the form
+5. Waits for you to review and submit manually
 
-```bash
-cat > ~/.config/xlg/data/sites.json << 'EOF'
-{
-  "amazon": "https://amazon.com/checkout"
-}
-EOF
+**Optional: Pre-fill common values**
+
+Create `~/.config/xlg/data/profile.json` with values you use often:
+
+```json
+{"name": "Your Name", "country": "USA", "email": "you@example.com"}
 ```
 
-4. Usage:
+Fields matching your profile are auto-filled; missing fields are prompted.
 
-```bash
-xlg 'fill "amazon"'           # fill form using alias
-xlg 'fill "https://..."'      # fill form at URL
+**Optional: Site aliases**
+
+Create `~/.config/xlg/data/sites.json` for shortcuts:
+
+```json
+{"amazon": "https://amazon.com/checkout", "shop": "https://myshop.com/order"}
 ```
 
-Browser opens, Claude analyzes the form, fields are filled. Review and submit manually.
+Then use: `xlg 'fill "amazon"'`
 
 ## Plugin System
 
-XLG supports custom commands via plugins. The `Registry` class stores source, transform, and sink functions.
+Add custom commands via plugins in `~/.config/xlg/plugins/`:
 
 ```python
-from xlg.plugins import Registry
-
-registry = Registry()
-registry.add_source("custom", lambda arg: iter([{"data": arg}]))
-registry.add_transform("custom", lambda stream, arg: (x for x in stream))
-registry.add_sink("custom", lambda data, arg: print(data))
+# ~/.config/xlg/plugins/hello.py
+def register(registry):
+    registry.add_sink("hello", lambda data, name: print(f"Hello, {name}!"))
 ```
-
-### Fill Plugin
-
-AI-powered form filling plugin. Uses Claude to map profile data to form fields and Playwright for browser automation.
 
 ```bash
-xlg 'fill "amazon"'  # fill form using site alias
-xlg 'fill "https://example.com/form"'  # fill form using direct URL
+xlg 'hello "World"'  # prints: Hello, World!
 ```
 
-Config files in `~/.config/xlg/data/`:
-- `sites.json`: Site aliases `{"amazon": "https://..."}`
-- `profile.json`: User data `{"name": "John", "zip": "90210"}`
+**Registry methods:** `add_source`, `add_transform`, `add_sink`
 
 ## Development
 
