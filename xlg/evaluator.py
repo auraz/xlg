@@ -1,16 +1,36 @@
 """Evaluator converts AST to executable pipeline."""
 
+import os
 from collections.abc import Generator
+from pathlib import Path
 from typing import Any
 from xlg.parser import Pipeline
+from xlg.plugins import Registry, load_plugins
 from xlg.commands.sources import cmd_read, cmd_fetch
 from xlg.commands.discovery import cmd_reddit, cmd_hn, cmd_museum, cmd_github, cmd_wiki
 from xlg.commands.transforms import cmd_parse, cmd_get, cmd_filter, cmd_take, cmd_sort, cmd_summarize
 from xlg.commands.sinks import cmd_open, cmd_pause, cmd_play, cmd_previous, cmd_print, cmd_resume, cmd_skip, cmd_status, cmd_store, cmd_toggle, cmd_volume, cmd_write
 
 
+_plugin_registry: Registry | None = None
+_plugin_dir_used: str | None = None
+
+
+def _get_plugin_registry() -> Registry:
+    """Load plugins from config directory (cached per directory)."""
+    global _plugin_registry, _plugin_dir_used
+    plugin_dir = Path(os.environ.get("XLG_PLUGIN_DIR", Path.home() / ".config" / "xlg" / "plugins"))
+    plugin_dir_str = str(plugin_dir)
+    if _plugin_registry is None or _plugin_dir_used != plugin_dir_str:
+        _plugin_registry = Registry()
+        _plugin_dir_used = plugin_dir_str
+        load_plugins(_plugin_registry, plugin_dir)
+    return _plugin_registry
+
+
 def evaluate(ast: Pipeline, source: Generator | None = None) -> Any:
     """Evaluate a pipeline AST."""
+    registry = _get_plugin_registry()
     stream = source
     for cmd in ast.commands:
         name, args = cmd.name, cmd.args
@@ -64,6 +84,12 @@ def evaluate(ast: Pipeline, source: Generator | None = None) -> Any:
             return cmd_status()
         elif name == "open":
             return cmd_open(stream)
+        elif name in registry.sources:
+            stream = registry.sources[name](*args)
+        elif name in registry.transforms:
+            stream = registry.transforms[name](stream, *args)
+        elif name in registry.sinks:
+            return registry.sinks[name](stream, *args)
         else:
             raise ValueError(f"Unknown command: {name}")
     return list(stream) if stream else []

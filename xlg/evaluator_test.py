@@ -27,3 +27,19 @@ def test_read_parse_print(capsys):
     result = evaluate(ast)
     assert result == [{"name": "alice"}]
     Path(path).unlink()
+
+
+def test_evaluate_plugin_sink(tmp_path, monkeypatch):
+    """Test that plugins are loaded and usable in evaluator."""
+    plugin_dir = tmp_path / "plugins"
+    plugin_dir.mkdir()
+    plugin_file = plugin_dir / "echo.py"
+    plugin_file.write_text("""
+def register(registry):
+    registry.add_sink("echo", lambda data, msg: f"echoed: {msg}")
+""")
+    monkeypatch.setenv("XLG_PLUGIN_DIR", str(plugin_dir))
+    tokens = tokenize('echo "hello"')
+    ast = parse(tokens)
+    result = evaluate(ast)
+    assert result == "echoed: hello"
