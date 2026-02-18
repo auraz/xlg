@@ -8,6 +8,8 @@ dependencies = [
     "httpx>=0.27",
     "openai>=2.21.0",
     "xlg-player",
+    "playwright>=1.40",
+    "anthropic>=0.40",
 ]
 
 [project.scripts]
