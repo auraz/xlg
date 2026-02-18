@@ -1,6 +1,6 @@
 """Fill plugin tests."""
 
-from xlg.plugins.fill import load_sites, load_profile, resolve_target, extract_form_html, map_fields_with_claude
+from xlg.plugins.fill import load_sites, load_profile, resolve_target, extract_form_html, map_fields_with_claude, fill_form_fields
 
 
 def test_load_sites(tmp_path):
@@ -55,3 +55,12 @@ def test_map_fields_with_claude(mocker):
     form_html = '<form><input id="name"><input id="zip"></form>'
     mappings = map_fields_with_claude(mock_client, form_html, profile)
     assert mappings == {"#name": "John", "#zip": "90210"}
+
+
+def test_fill_form_fields(mocker):
+    mock_page = mocker.MagicMock()
+    mappings = {"#name": "John", "#zip": "90210"}
+    fill_form_fields(mock_page, mappings)
+    assert mock_page.fill.call_count == 2
+    mock_page.fill.assert_any_call("#name", "John")
+    mock_page.fill.assert_any_call("#zip", "90210")

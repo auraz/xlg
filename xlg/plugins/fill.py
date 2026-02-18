@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import anthropic
+from playwright.sync_api import Page
 
 
 def load_sites(path: Path) -> dict[str, str]:
@@ -57,3 +58,9 @@ Only include fields that have matching profile data."""
 
     response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=1024, messages=[{"role": "user", "content": prompt}])
     return json.loads(response.content[0].text)
+
+
+def fill_form_fields(page: Page, mappings: dict[str, str]) -> None:
+    """Fill form fields using Playwright."""
+    for selector, value in mappings.items():
+        page.fill(selector, value)

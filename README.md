@@ -122,14 +122,15 @@ registry.add_sink("custom", lambda data, arg: print(data))
 
 ### Fill Plugin
 
-AI-powered form filling plugin with config loading:
+AI-powered form filling plugin with config loading and browser automation:
 
 ```python
-from xlg.plugins.fill import load_sites, load_profile, resolve_target
+from xlg.plugins.fill import load_sites, load_profile, resolve_target, fill_form_fields
 
 sites = load_sites(Path("~/.xlg/sites.json"))  # {"amazon": "https://..."}
 profile = load_profile(Path("~/.xlg/profile.json"))  # {"name": "John", ...}
 url = resolve_target("amazon", sites_path)  # resolves alias to URL
+fill_form_fields(page, {"#name": "John", "#zip": "90210"})  # fill form via Playwright
 ```
 
 ## Development
