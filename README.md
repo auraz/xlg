@@ -107,6 +107,19 @@ export OPENAI_API_KEY="your-key"
 
 Music playback uses [xlg-player](../xlg-player). See its README for setup instructions.
 
+## Plugin System
+
+XLG supports custom commands via plugins. The `Registry` class stores source, transform, and sink functions.
+
+```python
+from xlg.plugins import Registry
+
+registry = Registry()
+registry.add_source("custom", lambda arg: iter([{"data": arg}]))
+registry.add_transform("custom", lambda stream, arg: (x for x in stream))
+registry.add_sink("custom", lambda data, arg: print(data))
+```
+
 ## Development
 
 ```bash
