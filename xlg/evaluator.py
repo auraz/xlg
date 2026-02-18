@@ -17,13 +17,15 @@ _plugin_dir_used: str | None = None
 
 
 def _get_plugin_registry() -> Registry:
-    """Load plugins from config directory (cached per directory)."""
+    """Load plugins from config directory and built-in plugins."""
     global _plugin_registry, _plugin_dir_used
     plugin_dir = Path(os.environ.get("XLG_PLUGIN_DIR", Path.home() / ".config" / "xlg" / "plugins"))
     plugin_dir_str = str(plugin_dir)
     if _plugin_registry is None or _plugin_dir_used != plugin_dir_str:
         _plugin_registry = Registry()
         _plugin_dir_used = plugin_dir_str
+        from xlg.plugins.fill import register as fill_register
+        fill_register(_plugin_registry)
         load_plugins(_plugin_registry, plugin_dir)
     return _plugin_registry
 
