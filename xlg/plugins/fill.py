@@ -123,6 +123,22 @@ def fill_form_fields(page: Page, mappings: dict[str, str]) -> None:
         page.fill(selector, value)
 
 
+def find_submit_button(client: anthropic.Anthropic, form_html: str) -> str | None:
+    """Find the submit button selector."""
+    prompt = f"""Find the submit/login button in this HTML form.
+
+Form HTML:
+{form_html}
+
+Return ONLY the CSS selector for the submit button, nothing else.
+If no clear submit button exists, return "none".
+Example responses: "button[type='submit']" or "#login-btn" or "none" """
+
+    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=100, messages=[{"role": "user", "content": prompt}])
+    text = response.content[0].text.strip().strip('"').strip("'")
+    return None if text.lower() == "none" else text
+
+
 def get_site_name(target: str) -> str:
     """Extract site name from target for saving data."""
     if target.startswith("http://") or target.startswith("https://"):
@@ -159,7 +175,12 @@ def cmd_fill(data: Any, target: str) -> str:
             print(f"Saved {len(new_values)} values for {site_name}")
         mappings = map_fields_with_claude(client, form_html, filled)
         fill_form_fields(page, mappings)
-        input("Form filled. Press Enter to close browser...")
+        submit_selector = find_submit_button(client, form_html)
+        if submit_selector and len(fields) <= 3:
+            page.click(submit_selector)
+            print("Clicked submit button")
+            page.wait_for_load_state("domcontentloaded")
+        input("Done. Press Enter to close browser...")
         browser.close()
     return f"Filled {len(mappings)} fields"
 
