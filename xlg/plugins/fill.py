@@ -54,7 +54,10 @@ def resolve_target(target: str, sites_path: Path | None) -> str:
 def extract_form_html(html: str) -> str:
     """Extract form elements from HTML, removing noise."""
     forms = re.findall(r"<form[^>]*>.*?</form>", html, re.DOTALL | re.IGNORECASE)
-    return "\n".join(forms) if forms else html[:5000]
+    if forms:
+        return "\n".join(forms)
+    has_inputs = re.search(r"<(input|select|textarea)[^>]*>", html, re.IGNORECASE)
+    return html[:10000] if has_inputs else ""
 
 
 def analyze_form_fields(client: anthropic.Anthropic, form_html: str) -> list[dict[str, str]]:
@@ -185,7 +188,7 @@ def cmd_fill(data: Any, target: str) -> str:
             while True:
                 html = page.content()
                 form_html = extract_form_html(html)
-                if "<form" not in form_html.lower():
+                if not form_html:
                     print("No more forms found")
                     break
                 fields = analyze_form_fields(client, form_html)
