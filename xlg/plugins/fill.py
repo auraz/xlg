@@ -77,10 +77,16 @@ Example: [{{"selector": "#fname", "name": "First Name", "type": "text"}}]
 Return ONLY valid JSON, no markdown, no explanation."""
 
     response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=2048, messages=[{"role": "user", "content": prompt}])
-    text = response.content[0].text.strip()
+    text = response.content[0].text.strip() if response.content else ""
+    if not text:
+        return []
     if text.startswith("```"):
         text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-    return json.loads(text)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        print(f"Failed to parse Claude response: {text[:200]}")
+        return []
 
 
 def prompt_missing_fields(fields: list[dict[str, str]], profile: dict[str, Any]) -> dict[str, Any]:
