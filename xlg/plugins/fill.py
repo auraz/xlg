@@ -181,6 +181,7 @@ def cmd_fill(data: Any, target: str) -> str:
             page.click(submit_selector)
             print("Submitted form, waiting for next page...")
             page.wait_for_load_state("domcontentloaded")
+            page.wait_for_timeout(2000)
             while True:
                 html = page.content()
                 form_html = extract_form_html(html)
@@ -204,6 +205,7 @@ def cmd_fill(data: Any, target: str) -> str:
                     page.click(submit_selector)
                     print("Submitted form, waiting for next page...")
                     page.wait_for_load_state("domcontentloaded")
+                    page.wait_for_timeout(2000)
                 else:
                     break
         input("Done. Press Enter to close browser...")
