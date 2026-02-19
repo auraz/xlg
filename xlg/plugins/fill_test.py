@@ -1,6 +1,6 @@
 """Fill plugin tests."""
 
-from xlg.plugins.fill import load_sites, load_profile, resolve_target, extract_form_html, map_fields_with_claude, fill_form_fields, cmd_fill
+from xlg.plugins.fill import load_sites, load_profile, load_site_data, save_site_data, resolve_target, extract_form_html, map_fields_with_claude, fill_form_fields, cmd_fill
 
 
 def test_load_sites(tmp_path):
@@ -15,6 +15,13 @@ def test_load_profile(tmp_path):
     profile_file.write_text('{"name": "John", "zip": "90210"}')
     profile = load_profile(profile_file)
     assert profile["name"] == "John"
+
+
+def test_save_and_load_site_data(tmp_path):
+    save_site_data(tmp_path, "amazon", {"tracking": "123", "shop": "amazon.com"})
+    data = load_site_data(tmp_path, "amazon")
+    assert data["tracking"] == "123"
+    assert data["shop"] == "amazon.com"
 
 
 def test_resolve_target_alias(tmp_path):
