@@ -198,6 +198,7 @@ def cmd_fill(data: Any, target: str) -> str:
                     print("No more forms found")
                     break
                 print(f"Page has {len(form_html)} chars of form HTML")
+                print(f"HTML preview: {form_html[:500]}...")
                 fields = analyze_form_fields(client, form_html)
                 if not fields:
                     print("No fillable fields detected, stopping")
