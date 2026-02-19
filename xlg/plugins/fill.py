@@ -175,14 +175,40 @@ def cmd_fill(data: Any, target: str) -> str:
             print(f"Saved {len(new_values)} values for {site_name}")
         mappings = map_fields_with_claude(client, form_html, filled)
         fill_form_fields(page, mappings)
+        total_filled = len(mappings)
         submit_selector = find_submit_button(client, form_html)
         if submit_selector and len(fields) <= 3:
             page.click(submit_selector)
-            print("Clicked submit button")
+            print("Submitted form, waiting for next page...")
             page.wait_for_load_state("domcontentloaded")
+            while True:
+                html = page.content()
+                form_html = extract_form_html(html)
+                if "<form" not in form_html.lower():
+                    print("No more forms found")
+                    break
+                fields = analyze_form_fields(client, form_html)
+                if not fields:
+                    break
+                print(f"Found {len(fields)} form fields")
+                filled = prompt_missing_fields(fields, {**profile, **site_data})
+                new_values = {k: v for k, v in filled.items() if k not in profile}
+                if new_values:
+                    site_data.update(new_values)
+                    save_site_data(config_dir, site_name, site_data)
+                mappings = map_fields_with_claude(client, form_html, filled)
+                fill_form_fields(page, mappings)
+                total_filled += len(mappings)
+                submit_selector = find_submit_button(client, form_html)
+                if submit_selector and len(fields) <= 3:
+                    page.click(submit_selector)
+                    print("Submitted form, waiting for next page...")
+                    page.wait_for_load_state("domcontentloaded")
+                else:
+                    break
         input("Done. Press Enter to close browser...")
         browser.close()
-    return f"Filled {len(mappings)} fields"
+    return f"Filled {total_filled} fields"
 
 
 def register(registry: Any) -> None:

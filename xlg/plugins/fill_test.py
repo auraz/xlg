@@ -90,7 +90,8 @@ def test_cmd_fill_integration(tmp_path, mocker):
     analyze_response = mocker.MagicMock(text='[{"selector": "#name", "name": "Name", "type": "text"}]')
     map_response = mocker.MagicMock(text='{"#name": "John"}')
     submit_response = mocker.MagicMock(text='button[type="submit"]')
-    mock_claude.return_value.messages.create.side_effect = [mocker.MagicMock(content=[analyze_response]), mocker.MagicMock(content=[map_response]), mocker.MagicMock(content=[submit_response])]
+    no_fields_response = mocker.MagicMock(text='[]')
+    mock_claude.return_value.messages.create.side_effect = [mocker.MagicMock(content=[analyze_response]), mocker.MagicMock(content=[map_response]), mocker.MagicMock(content=[submit_response]), mocker.MagicMock(content=[no_fields_response])]
     mocker.patch("builtins.input", return_value="")
     result = cmd_fill(None, "test")
     assert "filled" in result.lower()

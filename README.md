@@ -130,9 +130,10 @@ xlg 'fill "amazon"'                     # fill form using alias
 **How it works:**
 1. Opens browser and navigates to URL
 2. Claude analyzes form fields
-3. Prompts you for each field value interactively
+3. Prompts for missing field values (values from profile/saved data are used automatically)
 4. Fills the form
-5. Waits for you to review and submit manually
+5. Auto-submits simple forms (≤3 fields like login) and continues to next form
+6. Waits for you to review and submit complex forms manually
 
 **Optional: Pre-fill common values**
 
