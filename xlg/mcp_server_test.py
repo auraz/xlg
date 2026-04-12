@@ -163,3 +163,17 @@ def test_xlg_fetch_with_limit(mock_fetch):
     mock_fetch.return_value = _gen(["a", "b", "c", "d", "e"])
     result = xlg_fetch("https://example.com", limit=2)
     assert len(result) == 2
+
+
+import tempfile
+from pathlib import Path
+from xlg.mcp_server import xlg_pipeline
+
+
+def test_xlg_pipeline():
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        f.write('[{"name": "alice"}, {"name": "bob"}]')
+        path = f.name
+    result = xlg_pipeline(f'read "{path}" | parse json | take 1 | print')
+    assert result == [{"name": "alice"}]
+    Path(path).unlink()

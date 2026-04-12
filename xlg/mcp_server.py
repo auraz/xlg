@@ -1,6 +1,9 @@
 """XLG MCP server — exposes xlg commands as MCP tools."""
 
 from mcp.server.fastmcp import FastMCP
+from xlg.lexer import tokenize
+from xlg.parser import parse
+from xlg.evaluator import evaluate
 from xlg.commands.discovery import cmd_reddit, cmd_hn, cmd_museum, cmd_github, cmd_wiki
 from xlg.commands.sinks import cmd_play, cmd_pause, cmd_resume, cmd_toggle, cmd_skip, cmd_previous, cmd_volume, cmd_status, cmd_favorite
 from xlg.commands.transforms import cmd_take, cmd_parse, cmd_get, cmd_filter
@@ -76,6 +79,13 @@ def xlg_fill(target: str) -> str:
     """Fill a web form using AI. Pass a URL or site alias (e.g. 'amazon')."""
     from xlg.plugins.fill import cmd_fill
     return cmd_fill(None, target)
+
+
+@mcp.tool()
+def xlg_pipeline(expression: str) -> list:
+    """Run an arbitrary xlg pipe expression. Example: 'fetch "api/users" | parse json | take 5 | print'"""
+    result = evaluate(parse(tokenize(expression)))
+    return result if isinstance(result, list) else [result]
 
 
 def main() -> None:
