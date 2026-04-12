@@ -111,3 +111,55 @@ def test_xlg_playback_skip(mock_skip):
     result = xlg_playback("skip")
     mock_skip.assert_called_once()
     assert result == "skipped"
+
+
+from xlg.mcp_server import xlg_fetch, xlg_fill
+
+
+@patch("xlg.mcp_server.cmd_fetch")
+def test_xlg_fetch_raw(mock_fetch):
+    mock_fetch.return_value = _gen(["raw html"])
+    result = xlg_fetch("https://example.com")
+    mock_fetch.assert_called_once_with("https://example.com")
+    assert result == ["raw html"]
+
+
+@patch("xlg.mcp_server.cmd_parse")
+@patch("xlg.mcp_server.cmd_fetch")
+def test_xlg_fetch_json(mock_fetch, mock_parse):
+    mock_fetch.return_value = _gen(['[{"a":1}]'])
+    mock_parse.return_value = _gen([{"a": 1}])
+    result = xlg_fetch("https://api.com/data", format="json")
+    mock_parse.assert_called_once()
+    assert result == [{"a": 1}]
+
+
+@patch("xlg.mcp_server.cmd_get")
+@patch("xlg.mcp_server.cmd_parse")
+@patch("xlg.mcp_server.cmd_fetch")
+def test_xlg_fetch_json_with_field(mock_fetch, mock_parse, mock_get):
+    mock_fetch.return_value = _gen(['{"items":[1,2]}'])
+    mock_parse.return_value = _gen([{"items": [1, 2]}])
+    mock_get.return_value = _gen([1, 2])
+    result = xlg_fetch("https://api.com", format="json", field="items")
+    mock_get.assert_called_once()
+    assert result == [1, 2]
+
+
+@patch("xlg.mcp_server.cmd_filter")
+@patch("xlg.mcp_server.cmd_parse")
+@patch("xlg.mcp_server.cmd_fetch")
+def test_xlg_fetch_with_filter(mock_fetch, mock_parse, mock_filter):
+    mock_fetch.return_value = _gen(["csv"])
+    mock_parse.return_value = _gen([{"active": "true"}, {"active": "false"}])
+    mock_filter.return_value = _gen([{"active": "true"}])
+    result = xlg_fetch("https://data.com", format="csv", filter_field="active", filter_value="true")
+    mock_filter.assert_called_once()
+    assert result == [{"active": "true"}]
+
+
+@patch("xlg.mcp_server.cmd_fetch")
+def test_xlg_fetch_with_limit(mock_fetch):
+    mock_fetch.return_value = _gen(["a", "b", "c", "d", "e"])
+    result = xlg_fetch("https://example.com", limit=2)
+    assert len(result) == 2

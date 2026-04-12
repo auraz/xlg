@@ -3,7 +3,8 @@
 from mcp.server.fastmcp import FastMCP
 from xlg.commands.discovery import cmd_reddit, cmd_hn, cmd_museum, cmd_github, cmd_wiki
 from xlg.commands.sinks import cmd_play, cmd_pause, cmd_resume, cmd_toggle, cmd_skip, cmd_previous, cmd_volume, cmd_status, cmd_favorite
-from xlg.commands.transforms import cmd_take
+from xlg.commands.transforms import cmd_take, cmd_parse, cmd_get, cmd_filter
+from xlg.commands.sources import cmd_fetch
 
 mcp = FastMCP("xlg")
 
@@ -53,6 +54,28 @@ def xlg_playback(action: str, level: str = "") -> str:
     if action not in actions:
         raise ValueError(f"Unknown action: {action}. Use: {', '.join(actions)}, volume")
     return actions[action]()
+
+
+@mcp.tool()
+def xlg_fetch(url: str, format: str = "", field: str = "", filter_field: str = "", filter_value: str = "", limit: int = 0) -> list:
+    """Fetch URL content. Optionally parse (json/csv/rss), extract field, filter, and limit results."""
+    stream = cmd_fetch(url)
+    if format:
+        stream = cmd_parse(stream, format)
+    if field:
+        stream = cmd_get(stream, field)
+    if filter_field and filter_value:
+        stream = cmd_filter(stream, filter_field, filter_value)
+    if limit:
+        stream = cmd_take(stream, limit)
+    return list(stream)
+
+
+@mcp.tool()
+def xlg_fill(target: str) -> str:
+    """Fill a web form using AI. Pass a URL or site alias (e.g. 'amazon')."""
+    from xlg.plugins.fill import cmd_fill
+    return cmd_fill(None, target)
 
 
 def main() -> None:
