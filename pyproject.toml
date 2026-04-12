@@ -10,10 +10,12 @@ dependencies = [
     "xlg-player",
     "playwright>=1.40",
     "anthropic>=0.40",
+    "mcp>=1.0",
 ]
 
 [project.scripts]
 xlg = "xlg.main:main"
+xlg-mcp = "xlg.mcp_server:main"
 
 [tool.uv]
 package = true
