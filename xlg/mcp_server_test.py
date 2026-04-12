@@ -1,7 +1,9 @@
 """MCP server tests."""
 
-from unittest.mock import patch, MagicMock
-from xlg.mcp_server import xlg_reddit, xlg_hn, xlg_museum, xlg_github, xlg_wiki
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+from xlg.mcp_server import xlg_reddit, xlg_hn, xlg_museum, xlg_github, xlg_wiki, xlg_play, xlg_playback, xlg_fetch, xlg_pipeline
 
 
 def _make_posts(n: int) -> list[dict]:
@@ -70,9 +72,6 @@ def test_xlg_wiki_random(mock_wiki):
     assert len(result) == 5
 
 
-from xlg.mcp_server import xlg_play, xlg_playback
-
-
 @patch("xlg.mcp_server.cmd_play")
 def test_xlg_play(mock_play):
     mock_play.return_value = "Playing: Beatles Yesterday"
@@ -111,9 +110,6 @@ def test_xlg_playback_skip(mock_skip):
     result = xlg_playback("skip")
     mock_skip.assert_called_once()
     assert result == "skipped"
-
-
-from xlg.mcp_server import xlg_fetch, xlg_fill
 
 
 @patch("xlg.mcp_server.cmd_fetch")
@@ -163,11 +159,6 @@ def test_xlg_fetch_with_limit(mock_fetch):
     mock_fetch.return_value = _gen(["a", "b", "c", "d", "e"])
     result = xlg_fetch("https://example.com", limit=2)
     assert len(result) == 2
-
-
-import tempfile
-from pathlib import Path
-from xlg.mcp_server import xlg_pipeline
 
 
 def test_xlg_pipeline():

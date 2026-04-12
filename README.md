@@ -171,6 +171,43 @@ xlg 'hello "World"'  # prints: Hello, World!
 
 **Registry methods:** `add_source`, `add_transform`, `add_sink`
 
+## MCP Server
+
+Use xlg from AI agents (OpenClaw, Claude Desktop) via Model Context Protocol.
+
+```bash
+xlg-mcp  # starts MCP server (stdio transport)
+```
+
+### Setup
+
+Add to your MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "xlg": {
+      "command": "xlg-mcp"
+    }
+  }
+}
+```
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `xlg_reddit` | Browse Reddit posts |
+| `xlg_hn` | Browse Hacker News stories |
+| `xlg_museum` | Browse Met Museum artworks |
+| `xlg_github` | Search GitHub repositories |
+| `xlg_wiki` | Browse Wikipedia articles |
+| `xlg_play` | Play music on Apple Music |
+| `xlg_playback` | Playback controls (pause, skip, volume, etc.) |
+| `xlg_fetch` | Fetch URL + parse/filter/limit |
+| `xlg_fill` | AI-assisted web form filling |
+| `xlg_pipeline` | Run arbitrary xlg pipe expression |
+
 ## Development
 
 ```bash
