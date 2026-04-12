@@ -68,3 +68,46 @@ def test_xlg_wiki_random(mock_wiki):
     result = xlg_wiki()
     mock_wiki.assert_called_once_with("")
     assert len(result) == 5
+
+
+from xlg.mcp_server import xlg_play, xlg_playback
+
+
+@patch("xlg.mcp_server.cmd_play")
+def test_xlg_play(mock_play):
+    mock_play.return_value = "Playing: Beatles Yesterday"
+    result = xlg_play("Beatles Yesterday")
+    mock_play.assert_called_once_with("Beatles Yesterday")
+    assert result == "Playing: Beatles Yesterday"
+
+
+@patch("xlg.mcp_server.cmd_toggle")
+def test_xlg_playback_toggle(mock_toggle):
+    mock_toggle.return_value = "toggled"
+    result = xlg_playback("toggle")
+    mock_toggle.assert_called_once()
+    assert result == "toggled"
+
+
+@patch("xlg.mcp_server.cmd_volume")
+def test_xlg_playback_volume(mock_volume):
+    mock_volume.return_value = "volume: 50"
+    result = xlg_playback("volume", level="50")
+    mock_volume.assert_called_once_with("50")
+    assert result == "volume: 50"
+
+
+@patch("xlg.mcp_server.cmd_pause")
+def test_xlg_playback_pause(mock_pause):
+    mock_pause.return_value = "paused"
+    result = xlg_playback("pause")
+    mock_pause.assert_called_once()
+    assert result == "paused"
+
+
+@patch("xlg.mcp_server.cmd_skip")
+def test_xlg_playback_skip(mock_skip):
+    mock_skip.return_value = "skipped"
+    result = xlg_playback("skip")
+    mock_skip.assert_called_once()
+    assert result == "skipped"
