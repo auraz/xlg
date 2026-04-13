@@ -1,6 +1,19 @@
 # XLG - eXpression LanGuage
 
-Express complex operations in single commands.
+**Express complex operations in single commands.** Unix pipes for the modern web.
+
+Browse Reddit, Hacker News, Wikipedia, GitHub, Met Museum — or fetch any API — all from your terminal or AI agent.
+
+## Quick Examples
+
+```bash
+xlg 'reddit "r/Art" | take 5'              # Top posts from r/Art
+xlg 'hn "AI agents" | take 3'              # Hacker News stories
+xlg 'museum "monet" | take 3'              # Met Museum artworks
+xlg 'github "language:rust cli" | take 3'  # GitHub repos
+xlg 'wiki "impressionism" | take 3'        # Wikipedia articles
+xlg 'play "Debussy"'                       # Play on Apple Music
+```
 
 ## Install
 
@@ -183,6 +196,13 @@ xlg-mcp  # starts MCP server (stdio transport)
 
 Add to your MCP client config:
 
+**OpenClaw:**
+```bash
+openclaw mcp set xlg '{"command": "xlg-mcp"}'
+openclaw gateway restart
+```
+
+**Claude Desktop / Other MCP clients:**
 ```json
 {
   "mcpServers": {
@@ -193,20 +213,22 @@ Add to your MCP client config:
 }
 ```
 
+Now your AI agent can browse Reddit, search GitHub, play music, and more — just by asking.
+
 ### Tools
 
-| Tool | Description |
-|------|-------------|
-| `xlg_reddit` | Browse Reddit posts |
-| `xlg_hn` | Browse Hacker News stories |
-| `xlg_museum` | Browse Met Museum artworks |
-| `xlg_github` | Search GitHub repositories |
-| `xlg_wiki` | Browse Wikipedia articles |
-| `xlg_play` | Play music on Apple Music |
-| `xlg_playback` | Playback controls (pause, skip, volume, etc.) |
-| `xlg_fetch` | Fetch URL + parse/filter/limit |
-| `xlg_fill` | AI-assisted web form filling |
-| `xlg_pipeline` | Run arbitrary xlg pipe expression |
+| Tool | Description | Example |
+|------|-------------|--------|
+| `xlg_reddit` | Browse Reddit posts by subreddit | `subreddit="r/Art" query="monet" limit=5` |
+| `xlg_hn` | Browse Hacker News (tech, startups, science) | `query="AI agents" limit=5` |
+| `xlg_museum` | Search Met Museum collection (art!) | `query="impressionist" limit=5` |
+| `xlg_github` | Search GitHub repos (supports search syntax) | `query="language:python mcp" limit=5` |
+| `xlg_wiki` | Browse Wikipedia (empty query = random) | `query="" limit=5` |
+| `xlg_play` | Play music on Apple Music (macOS) | `query="Debussy Clair de Lune"` |
+| `xlg_playback` | Control playback | `action="pause\|skip\|volume" level="50"` |
+| `xlg_fetch` | Fetch URL + chain operations | `url, format, field, filter_field, limit` |
+| `xlg_fill` | AI form filling with Playwright | `target="https://..." or alias` |
+| `xlg_pipeline` | Run full pipe expression | `expression="fetch ... \| parse ..."` |
 
 ## Development
 
