@@ -2,6 +2,8 @@
 
 **Express complex operations in single commands.** Unix pipes for the modern web.
 
+![xlg demo](assets/demo.gif)
+
 Browse Reddit, Hacker News, Wikipedia, GitHub, Met Museum — or fetch any API — all from your terminal or AI agent.
 
 ## Quick Examples
